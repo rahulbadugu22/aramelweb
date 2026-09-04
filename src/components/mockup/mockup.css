@@ -1,0 +1,1666 @@
+/* ==========================================================================
+   CAR FRND - WHITE BACKGROUND THEME (EXACT IMAGE UI REDESIGN)
+   Clean White Background, Authentic High-End Detailing, Original Logo Support
+   ========================================================================== */
+
+:root {
+  --brand-pink: #FF2B85;
+  --brand-pink-hover: #E01E70;
+  --brand-pink-glow: rgba(255, 43, 133, 0.28);
+  --brand-pink-subtle: #FFF0F6;
+  --brand-pink-border: #FFD6E8;
+  --brand-pink-gradient: linear-gradient(135deg, #FF2B85 0%, #D81B60 100%);
+  
+  /* White Theme Palette */
+  --bg-page: #FFFFFF;
+  --bg-subtle: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-dark-contrast: #0B0F17;
+  
+  --text-main: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  
+  --border-light: #E2E8F0;
+  --border-hover: rgba(255, 43, 133, 0.4);
+  
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 16px 36px rgba(15, 23, 42, 0.09);
+  --shadow-pink: 0 8px 25px rgba(255, 43, 133, 0.32);
+}
+
+/* Base Wrapper */
+.mockup-page {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+.mockup-container {
+  width: 92%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Floating Comparison Banner */
+.comparison-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 43, 133, 0.45);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 43, 133, 0.25);
+  font-size: 0.82rem;
+  animation: slideUpCompare 0.5s ease-out;
+}
+
+@keyframes slideUpCompare {
+  from { transform: translate(-50%, 40px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.comparison-btn {
+  border: none;
+  background: transparent;
+  color: #94A3B8;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.comparison-btn.active {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(255, 43, 133, 0.4);
+}
+
+/* ==========================================================================
+   1. NAVBAR (WHITE BACKGROUND + ORIGINAL LOGO)
+   ========================================================================== */
+.mockup-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
+  padding: 8px 0;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.mockup-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.mockup-logo-wrap {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 50px;
+  overflow: visible;
+  position: relative;
+}
+
+.mockup-logo-img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transform: scale(2.2);
+  transform-origin: left center;
+  transition: transform 0.2s ease;
+}
+
+.mockup-logo-img:hover {
+  transform: scale(2.28);
+}
+
+.mockup-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  list-style: none;
+}
+
+.mockup-nav-link {
+  color: #334155;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.mockup-nav-link:hover {
+  color: var(--brand-pink);
+}
+
+.mockup-nav-link.active {
+  color: var(--brand-pink);
+  background: var(--brand-pink-subtle);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--brand-pink-border);
+}
+
+.mockup-nav-btn {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-pink);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mockup-nav-btn:hover {
+  background: var(--brand-pink-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(255, 43, 133, 0.45);
+}
+
+.mockup-mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #0F172A;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   2. HERO SECTION (WHITE BACKGROUND + LUXURY CONTRAST)
+   ========================================================================== */
+.mockup-hero {
+  position: relative;
+  padding: 36px 0 16px 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 80% 35%, rgba(255, 43, 133, 0.08) 0%, transparent 60%),
+              radial-gradient(circle at 10% 20%, rgba(241, 245, 249, 0.8) 0%, transparent 50%),
+              #FFFFFF;
+}
+
+.mockup-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.mockup-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-pink);
+  margin-bottom: 18px;
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.mockup-hero-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #0F172A;
+  margin-bottom: 18px;
+}
+
+.mockup-hero-title .pink-accent {
+  color: var(--brand-pink);
+  display: block;
+}
+
+.mockup-hero-sub {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin-bottom: 32px;
+}
+
+.mockup-hero-ctas {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 13px 28px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-pink);
+  transition: all 0.25s ease;
+}
+
+.btn-hero-primary:hover {
+  background: var(--brand-pink-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 43, 133, 0.5);
+}
+
+.btn-hero-secondary {
+  background: #FFFFFF;
+  color: #0F172A;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-hero-secondary:hover {
+  background: #F8FAFC;
+  border-color: var(--brand-pink);
+  color: var(--brand-pink);
+  transform: translateY(-2px);
+}
+
+.mockup-hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+.hero-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-stat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  color: var(--brand-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.hero-stat-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-stat-val {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.94rem;
+  color: #0F172A;
+  line-height: 1.2;
+}
+
+.hero-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Right Hero Visual Stack */
+.mockup-hero-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.hero-composite-img {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: cover;
+  border-radius: 28px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.22), 0 0 40px rgba(255, 43, 133, 0.14);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-composite-img:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.28), 0 0 50px rgba(255, 43, 133, 0.22);
+}
+
+/* Realistic 3D Floating Phone Mockup */
+.hero-phone-mockup {
+  position: absolute;
+  left: 8%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 295px;
+  background: #0D121B;
+  border-radius: 38px;
+  border: 3.5px solid #1E293B;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 35px rgba(255, 43, 133, 0.22);
+  padding: 14px 16px 20px 16px;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.phone-notch {
+  width: 90px;
+  height: 18px;
+  background: #070A0F;
+  border-radius: 0 0 12px 12px;
+  margin: -12px auto 8px auto;
+}
+
+.phone-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.phone-user-greeting {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.phone-user-greeting span {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #94A3B8;
+}
+
+.phone-search-bar {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #CBD5E1;
+  margin-bottom: 12px;
+}
+
+.phone-sec-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.phone-sec-title a {
+  color: var(--brand-pink);
+  text-decoration: none;
+  font-size: 0.65rem;
+}
+
+.phone-services-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.phone-service-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.phone-service-item img {
+  width: 100%;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.phone-service-item span {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #E2E8F0;
+}
+
+.phone-booking-card {
+  background: rgba(255, 43, 133, 0.12);
+  border: 1px solid var(--brand-pink-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-booking-info h5 {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.phone-booking-info p {
+  font-size: 0.6rem;
+  color: #CBD5E1;
+}
+
+.phone-status-pill {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+/* Ultra-Realistic Floating QR Tag Decal */
+.hero-qr-tag-card {
+  position: absolute;
+  right: 3%;
+  bottom: 8%;
+  background: #0E131A;
+  border: 2px solid #232B38;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 43, 133, 0.28);
+  z-index: 15;
+  width: 165px;
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.hero-qr-tag-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-qr-tag-header h4 {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+
+.hero-qr-tag-header span {
+  font-size: 0.62rem;
+  color: var(--brand-pink);
+  font-weight: 700;
+}
+
+.hero-qr-real-wrapper {
+  background: #FFFFFF;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
+  width: 105px;
+  height: 105px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-qr-real-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-qr-tag-card p {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #94A3B8;
+}
+
+/* ==========================================================================
+   3. OUR SERVICES ("Everything You Need. One App.") - WHITE THEME
+   ========================================================================== */
+.mockup-services {
+  padding: 32px 0 55px 0;
+  position: relative;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.services-sec-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.services-tag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-pink);
+  display: inline-block;
+  margin-bottom: 8px;
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.services-heading {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.services-heading .pink-accent {
+  color: var(--brand-pink);
+}
+
+.services-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.mockup-service-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.mockup-service-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--brand-pink);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), 0 0 20px rgba(255, 43, 133, 0.12);
+}
+
+.service-card-media {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.service-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.mockup-service-card:hover .service-card-media img {
+  transform: scale(1.06);
+}
+
+.service-card-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 43, 133, 0.45);
+}
+
+.service-card-body {
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.service-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 14px;
+}
+
+.service-card-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 22px;
+  flex-grow: 1;
+}
+
+.service-card-list li {
+  font-size: 0.85rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-card-list li::before {
+  content: "•";
+  color: var(--brand-pink);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.service-card-link {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--brand-pink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.service-card-link:hover {
+  color: var(--brand-pink-hover);
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   4. FIND OWNER SECTION ("Connect Without Compromising Privacy")
+   ========================================================================== */
+.mockup-find-owner {
+  padding: 85px 0;
+  position: relative;
+  background: #FFFFFF;
+}
+
+.find-owner-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.find-owner-tag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-pink);
+  margin-bottom: 14px;
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.find-owner-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2.1rem, 3.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: #0F172A;
+  margin-bottom: 18px;
+}
+
+.find-owner-title .pink-accent {
+  color: var(--brand-pink);
+}
+
+.find-owner-desc {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  max-width: 440px;
+}
+
+.find-owner-btn {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-pink);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.find-owner-btn:hover {
+  background: var(--brand-pink-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(255, 43, 133, 0.48);
+}
+
+/* 4 Steps Flow */
+.find-owner-steps-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.find-owner-steps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+}
+
+.flow-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 110px;
+}
+
+.flow-step-visual {
+  width: 98px;
+  height: 134px;
+  background: #0E141E;
+  border-radius: 20px;
+  border: 2px solid #1E293B;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.flow-step-item:hover .flow-step-visual {
+  border-color: var(--brand-pink);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(255, 43, 133, 0.22);
+}
+
+.flow-step-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.flow-step-arrow {
+  color: #94A3B8;
+  font-size: 1.2rem;
+  margin-top: -24px;
+}
+
+/* Step 1: Scan QR Tag */
+.step-scan-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-scan-qr {
+  width: 54px;
+  height: 54px;
+  background: #FFFFFF;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+/* Step 2: Reasons list mini */
+.step-reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.step-reason-chip {
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.48rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #E2E8F0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-reason-chip.active {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+/* Step 3: Calling screen */
+.step-calling-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.step-calling-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 43, 133, 0.2);
+  color: var(--brand-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.step-calling-text {
+  font-size: 0.52rem;
+  color: #CBD5E1;
+  font-weight: 600;
+}
+
+.step-calling-sub {
+  font-size: 0.45rem;
+  color: #94A3B8;
+}
+
+.step-calling-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.step-call-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+}
+
+.step-call-btn.green {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.step-call-btn.red {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+/* Step 4: Circular Avatar of Person */
+.flow-step-visual.circle-avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  padding: 3px;
+  border: 2.5px solid var(--brand-pink);
+  background: #FFFFFF;
+}
+
+.flow-step-visual.circle-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.step-phone-call-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Private number protected pill */
+.privacy-protected-pill {
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  border-radius: 9999px;
+  padding: 7px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brand-pink);
+}
+
+/* ==========================================================================
+   5. EXPERIENCE CAR FRND (LIGHT / WHITE CONTRAST SECTION)
+   ========================================================================== */
+.mockup-experience {
+  background: var(--bg-subtle);
+  color: #0F172A;
+  padding: 90px 0;
+  position: relative;
+  border-top: 1px solid var(--border-light);
+}
+
+.exp-sec-header {
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+.exp-tag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-pink);
+  margin-bottom: 8px;
+  display: inline-block;
+  background: var(--brand-pink-subtle);
+  border: 1px solid var(--brand-pink-border);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.exp-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.exp-title .pink-accent {
+  color: var(--brand-pink);
+}
+
+.exp-content-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Left Feature Points */
+.exp-features-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.exp-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.exp-feature-item:hover {
+  border-color: var(--brand-pink);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.exp-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #FFF0F6;
+  border: 1px solid #FFD6E8;
+  color: var(--brand-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.exp-feature-text h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.exp-feature-text p {
+  font-size: 0.85rem;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+/* Right Phones Carousel Row */
+.exp-showcase-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.exp-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+  transition: all 0.2s ease;
+}
+
+.exp-carousel-arrow:hover {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border-color: var(--brand-pink);
+  box-shadow: 0 6px 16px rgba(255, 43, 133, 0.35);
+}
+
+.exp-carousel-arrow.left {
+  left: -20px;
+}
+
+.exp-carousel-arrow.right {
+  right: -20px;
+}
+
+.exp-phones-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.exp-phone-frame {
+  background: #0F172A;
+  border-radius: 28px;
+  border: 2.5px solid #334155;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  padding: 10px 10px 16px 10px;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #FFFFFF;
+}
+
+.exp-phone-top-bar {
+  width: 65px;
+  height: 12px;
+  background: #020617;
+  border-radius: 0 0 8px 8px;
+  margin: -10px auto 10px auto;
+}
+
+/* Phone 1: Dashboard */
+.phone-mock-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.65rem;
+}
+
+/* Phone 2: Car Wash Listing */
+.phone-mock-services {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mock-service-row {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mock-service-row h6 {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.mock-service-row span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--brand-pink);
+}
+
+/* Phone 3: Bookings Tracking */
+.phone-mock-booking-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+/* Phone 4: Find Owner selection */
+.phone-mock-find-owner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phone-mock-car-img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.phone-mock-btn-continue {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: auto;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   6. TOP BRANDS STRIP ("TOP BRANDS. TRUSTED BY MILLIONS.")
+   ========================================================================== */
+.mockup-brands-strip {
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  padding: 40px 0;
+  text-align: center;
+}
+
+.brands-strip-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748B;
+  margin-bottom: 24px;
+}
+
+.brands-logos-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.brand-text-logo {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  color: #334155;
+  text-transform: uppercase;
+  opacity: 0.85;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.brand-text-logo:hover {
+  opacity: 1;
+  color: var(--brand-pink);
+  transform: scale(1.05);
+}
+
+.brand-michelin { font-style: italic; font-weight: 900; }
+.brand-bridgestone { letter-spacing: 0.12em; }
+.brand-continental { font-family: sans-serif; font-weight: 800; }
+.brand-pirelli { font-stretch: expanded; font-weight: 900; }
+.brand-apollo { letter-spacing: 0.08em; }
+.brand-mrf { font-size: 1.6rem; letter-spacing: 0.16em; }
+
+/* ==========================================================================
+   7. APP DOWNLOAD BANNER ("Your Car Deserves a Better Way.")
+   ========================================================================== */
+.mockup-app-banner {
+  background: radial-gradient(circle at 25% 50%, rgba(255, 43, 133, 0.25) 0%, transparent 60%),
+              linear-gradient(135deg, #0A0E17 0%, #171120 50%, #080C14 100%);
+  padding: 75px 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  color: #FFFFFF;
+}
+
+.banner-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr auto;
+  gap: 36px;
+  align-items: center;
+}
+
+.banner-phone-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-phone-img {
+  width: 240px;
+  height: auto;
+  border-radius: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 43, 133, 0.35);
+  transform: rotate(-6deg);
+  transition: transform 0.4s ease;
+}
+
+.banner-phone-visual:hover .banner-phone-img {
+  transform: rotate(0deg) scale(1.04);
+}
+
+.banner-text-col h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.banner-text-col p {
+  font-size: 1rem;
+  color: #CBD5E1;
+  max-width: 440px;
+}
+
+.banner-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.banner-store-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.store-badge-btn {
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #FFFFFF;
+  transition: all 0.2s ease;
+  min-width: 165px;
+}
+
+.store-badge-btn:hover {
+  border-color: var(--brand-pink);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 43, 133, 0.3);
+}
+
+.store-badge-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.store-badge-text span {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+.store-badge-text strong {
+  font-size: 0.88rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.banner-qr-box {
+  background: #FFFFFF;
+  padding: 10px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.banner-qr-box svg {
+  width: 90px;
+  height: 90px;
+}
+
+.banner-qr-box span {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* ==========================================================================
+   8. FOOTER (WHITE BACKGROUND + ORIGINAL LOGO)
+   ========================================================================== */
+.mockup-footer {
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-light);
+  padding: 65px 0 30px 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.footer-top-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr 1.2fr;
+  gap: 36px;
+  margin-bottom: 50px;
+}
+
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-brand-desc {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #64748B;
+  max-width: 290px;
+}
+
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  border: 1px solid var(--border-light);
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.social-icon-btn:hover {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border-color: var(--brand-pink);
+  transform: translateY(-2px);
+}
+
+.footer-nav-col h5 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 18px;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links-list a {
+  color: #64748B;
+  text-decoration: none;
+  font-size: 0.84rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links-list a:hover {
+  color: var(--brand-pink);
+}
+
+.footer-contact-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: #64748B;
+}
+
+.footer-contact-row svg {
+  color: var(--brand-pink);
+  flex-shrink: 0;
+}
+
+.footer-bottom-bar {
+  border-top: 1px solid var(--border-light);
+  padding-top: 24px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #94A3B8;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (Tablets & Mobiles)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .mockup-hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .mockup-hero-sub {
+    margin: 0 auto 32px auto;
+  }
+  
+  .mockup-hero-ctas,
+  .mockup-hero-stats {
+    justify-content: center;
+  }
+  
+  .services-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .find-owner-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .find-owner-desc {
+    margin: 0 auto 28px auto;
+  }
+  
+  .exp-content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .exp-phones-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  
+  .banner-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+  
+  .banner-text-col p {
+    margin: 0 auto;
+  }
+  
+  .footer-top-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mockup-nav-links {
+    display: none;
+  }
+  
+  .mockup-mobile-menu-toggle {
+    display: block;
+  }
+  
+  .services-grid-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .find-owner-steps-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .flow-step-arrow {
+    transform: rotate(90deg);
+    margin: 0;
+  }
+  
+  .exp-phones-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .banner-actions-col {
+    flex-direction: column;
+  }
+  
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-phone-mockup {
+    position: static;
+    transform: none;
+    margin: 20px auto;
+    width: 260px;
+  }
+  
+  .hero-qr-tag-card {
+    position: static;
+    margin: 10px auto;
+  }
+}

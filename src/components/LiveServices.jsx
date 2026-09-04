@@ -22,14 +22,14 @@ export default function LiveServices({ onOpenOrderTag }) {
       title: 'FindOwner QR Safety Tag',
       subtitle: 'CarFrnd Connect',
       price: '₹99',
-      duration: 'Lifetime Decal',
+      duration: 'Lifetime Tag',
       rating: '4.9 ★ (12,400+ reviews)',
       image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
-      desc: 'Weatherproof windshield decal. Allows anyone to contact you anonymously without seeing your phone number.',
+      desc: 'Weatherproof windshield QR tag. Allows anyone to contact you anonymously without seeing your phone number.',
       features: [
         '100% Mobile Phone Privacy Masking',
         'Emergency Towing & Parking Alerts',
-        'No App Download Required for Scanners',
+        'No App Required to Scan',
         'One-time Payment (No Subscriptions)'
       ],
       tag: 'FEATURED'

@@ -114,20 +114,22 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
           align-items: center;
           text-decoration: none;
           height: 52px;
+          min-width: 175px;
+          margin-right: 20px;
           overflow: visible;
         }
 
         .brand-logo-img {
-          height: 54px;
+          height: 60px;
           width: auto;
           object-fit: contain;
-          transform: scale(1.6);
+          transform: scale(2.2);
           transform-origin: left center;
           transition: transform 0.2s ease;
         }
 
         .brand-logo-img:hover {
-          transform: scale(1.65);
+          transform: scale(2.28);
         }
 
         .desktop-nav {
@@ -243,10 +245,10 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
 
         @media (max-width: 900px) {
           .navbar-header {
-            height: 76px;
+            height: 68px;
           }
           .navbar-header.scrolled {
-            height: 70px;
+            height: 62px;
           }
           .desktop-nav {
             display: none;
@@ -262,9 +264,15 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
           .btn-nav-cta {
             display: none; /* Hide on mobile so it doesn't overlap logo/hamburger */
           }
+          .brand-logo {
+            height: 48px;
+            min-width: 150px;
+            margin-right: 0;
+          }
           .brand-logo-img {
             height: 52px;
-            transform: scale(1.65);
+            transform: scale(2.2);
+            transform-origin: left center;
           }
         }
       `}</style>

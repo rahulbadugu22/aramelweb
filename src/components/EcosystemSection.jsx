@@ -1,49 +1,49 @@
 import React, { useState } from 'react';
-import { Smartphone, Users, Wrench, Settings, Store } from 'lucide-react';
+import { Smartphone, ShieldCheck, Sparkles, Wrench, Zap } from 'lucide-react';
 
 export default function EcosystemSection() {
   const [activeNode, setActiveNode] = useState('center');
 
   const nodes = [
     {
-      id: 'owners',
-      title: 'Car Owners',
-      stat: '50K+',
-      icon: Users,
+      id: 'findowner',
+      title: 'FindOwner QR Tag',
+      stat: 'LIVE',
+      icon: ShieldCheck,
+      color: '#FF2B85',
+      bg: '#FFF0F6',
+      border: '#FFD6E8',
+      desc: 'Instant vehicle privacy guard. Receive anonymous masked calls & parking alerts without revealing your personal phone number.'
+    },
+    {
+      id: 'carwash',
+      title: 'Doorstep Car Wash',
+      stat: 'LIVE',
+      icon: Sparkles,
+      color: '#10B981',
+      bg: '#ECFDF5',
+      border: '#A7F3D0',
+      desc: 'Eco-friendly high-pressure foam wash and interior vacuuming performed right at your apartment or office parking spot.'
+    },
+    {
+      id: 'servicing',
+      title: 'Periodic Servicing',
+      stat: 'COMING SOON',
+      icon: Wrench,
       color: '#3B82F6',
       bg: '#EFF6FF',
       border: '#BFDBFE',
-      desc: 'Instant QR privacy alerts, 1-tap doorstep car wash, digital service history, and emergency parking notifications.'
+      desc: 'Scheduled maintenance, multi-point vehicle health inspections, and genuine fluid servicing with transparent fixed pricing.'
     },
     {
-      id: 'providers',
-      title: 'Service Providers',
-      stat: '200+',
-      icon: Wrench,
-      color: '#8B5CF6',
-      bg: '#F5F3FF',
-      border: '#DDD6FE',
-      desc: 'Verified mobile detailing vans and neighborhood wash stations with automated slot scheduling and job assignments.'
-    },
-    {
-      id: 'tyres',
-      title: 'Tyre Partners',
-      stat: '30+',
-      icon: Settings,
-      color: '#D97706',
+      id: 'roadside',
+      title: 'Tyres & Roadside SOS',
+      stat: 'COMING SOON',
+      icon: Zap,
+      color: '#F59E0B',
       bg: '#FFFBEB',
       border: '#FDE68A',
-      desc: 'Authorized brand distributors for Michelin, Bridgestone, Apollo, and Goodyear with direct customer dispatch.'
-    },
-    {
-      id: 'dealers',
-      title: 'Dealers',
-      stat: '50+',
-      icon: Store,
-      color: '#EC4899',
-      bg: '#FDF2F8',
-      border: '#FBCFE8',
-      desc: 'Pre-owned car dealerships bundling FindOwner safety tags and post-sale maintenance packages with vehicles.'
+      desc: 'On-demand tyre pressure audits, puncture support, and 24/7 emergency roadside jumpstart assistance.'
     }
   ];
 
@@ -54,12 +54,12 @@ export default function EcosystemSection() {
         <div className="section-header text-center">
           <div className="ecosystem-pill">
             <span className="pill-dot"></span>
-            <span>THE PLATFORM</span>
+            <span>CAR CARE PLATFORM</span>
           </div>
-          <h2 className="ecosystem-title">The Automotive Ecosystem</h2>
+          <h2 className="ecosystem-title">All Your Car Care, One Platform</h2>
           <p className="ecosystem-subtitle">
-            CarFrnd connects every stakeholder in your vehicle’s life — creating 
-            a seamless network of care, service, and trust.
+            Everything your vehicle needs — protecting your privacy on the road and delivering 
+            doorstep auto care right to your parking spot.
           </p>
         </div>
 
@@ -116,25 +116,25 @@ export default function EcosystemSection() {
             <line x1="250" y1="250" x2="80" y2="250" stroke="#10B981" strokeWidth="2" strokeDasharray="4 4" opacity="0.6" />
 
             {/* 3. Glowing Energy Dots Traveling Directly on the Dotted Lines from Center Outward */}
-            {/* North Dot (Center -> Car Owners) */}
+            {/* North Dot (Center -> FindOwner QR Tag) */}
             <circle cx="250" cy="250" r="4.5" fill="#10B981" filter="url(#greenGlow)">
               <animate attributeName="cy" values="250; 80" dur="2s" repeatCount="indefinite" keyTimes="0; 1" />
               <animate attributeName="opacity" values="0; 1; 1; 0" dur="2s" repeatCount="indefinite" keyTimes="0; 0.15; 0.85; 1" />
             </circle>
 
-            {/* East Dot (Center -> Service Providers) */}
+            {/* East Dot (Center -> Doorstep Car Wash) */}
             <circle cx="250" cy="250" r="4.5" fill="#10B981" filter="url(#greenGlow)">
               <animate attributeName="cx" values="250; 420" dur="2s" repeatCount="indefinite" keyTimes="0; 1" />
               <animate attributeName="opacity" values="0; 1; 1; 0" dur="2s" repeatCount="indefinite" keyTimes="0; 0.15; 0.85; 1" />
             </circle>
 
-            {/* South Dot (Center -> Tyre Partners) */}
+            {/* South Dot (Center -> Periodic Servicing) */}
             <circle cx="250" cy="250" r="4.5" fill="#10B981" filter="url(#greenGlow)">
               <animate attributeName="cy" values="250; 420" dur="2s" repeatCount="indefinite" keyTimes="0; 1" />
               <animate attributeName="opacity" values="0; 1; 1; 0" dur="2s" repeatCount="indefinite" keyTimes="0; 0.15; 0.85; 1" />
             </circle>
 
-            {/* West Dot (Center -> Dealers) */}
+            {/* West Dot (Center -> Tyres & Roadside SOS) */}
             <circle cx="250" cy="250" r="4.5" fill="#10B981" filter="url(#greenGlow)">
               <animate attributeName="cx" values="250; 80" dur="2s" repeatCount="indefinite" keyTimes="0; 1" />
               <animate attributeName="opacity" values="0; 1; 1; 0" dur="2s" repeatCount="indefinite" keyTimes="0; 0.15; 0.85; 1" />
@@ -163,60 +163,60 @@ export default function EcosystemSection() {
             <div className="hub-pulse-ring"></div>
           </div>
 
-          {/* Node 1: Top (Car Owners) */}
+          {/* Node 1: Top (FindOwner QR Tag - LIVE) */}
           <div
-            className={`orbit-node node-pos-top ${activeNode === 'owners' ? 'active' : ''}`}
-            onClick={() => setActiveNode('owners')}
+            className={`orbit-node node-pos-top ${activeNode === 'findowner' ? 'active' : ''}`}
+            onClick={() => setActiveNode('findowner')}
+          >
+            <div className="orbit-node-box" style={{ borderColor: '#FFD6E8', background: '#FFFFFF' }}>
+              <div className="orbit-icon-wrap" style={{ background: '#FFF0F6' }}>
+                <ShieldCheck size={18} color="#FF2B85" />
+              </div>
+              <span className="orbit-stat" style={{ color: '#FF2B85', fontWeight: 800 }}>LIVE</span>
+            </div>
+            <span className="orbit-label">FindOwner QR Tag</span>
+          </div>
+
+          {/* Node 2: Right (Doorstep Car Wash - LIVE) */}
+          <div
+            className={`orbit-node node-pos-right ${activeNode === 'carwash' ? 'active' : ''}`}
+            onClick={() => setActiveNode('carwash')}
+          >
+            <div className="orbit-node-box" style={{ borderColor: '#A7F3D0', background: '#FFFFFF' }}>
+              <div className="orbit-icon-wrap" style={{ background: '#ECFDF5' }}>
+                <Sparkles size={18} color="#10B981" />
+              </div>
+              <span className="orbit-stat" style={{ color: '#10B981', fontWeight: 800 }}>LIVE</span>
+            </div>
+            <span className="orbit-label">Doorstep Car Wash</span>
+          </div>
+
+          {/* Node 3: Bottom (Periodic Servicing - COMING SOON) */}
+          <div
+            className={`orbit-node node-pos-bottom ${activeNode === 'servicing' ? 'active' : ''}`}
+            onClick={() => setActiveNode('servicing')}
           >
             <div className="orbit-node-box" style={{ borderColor: '#BFDBFE', background: '#FFFFFF' }}>
               <div className="orbit-icon-wrap" style={{ background: '#EFF6FF' }}>
-                <Users size={18} color="#3B82F6" />
+                <Wrench size={18} color="#3B82F6" />
               </div>
-              <span className="orbit-stat" style={{ color: '#3B82F6' }}>50K+</span>
+              <span className="orbit-stat" style={{ color: '#3B82F6', fontWeight: 800 }}>SOON</span>
             </div>
-            <span className="orbit-label">Car Owners</span>
+            <span className="orbit-label">Periodic Servicing</span>
           </div>
 
-          {/* Node 2: Right (Service Providers) */}
+          {/* Node 4: Left (Tyres & Roadside SOS - COMING SOON) */}
           <div
-            className={`orbit-node node-pos-right ${activeNode === 'providers' ? 'active' : ''}`}
-            onClick={() => setActiveNode('providers')}
-          >
-            <div className="orbit-node-box" style={{ borderColor: '#DDD6FE', background: '#FFFFFF' }}>
-              <div className="orbit-icon-wrap" style={{ background: '#F5F3FF' }}>
-                <Wrench size={18} color="#8B5CF6" />
-              </div>
-              <span className="orbit-stat" style={{ color: '#8B5CF6' }}>200+</span>
-            </div>
-            <span className="orbit-label">Service Providers</span>
-          </div>
-
-          {/* Node 3: Bottom (Tyre Partners) */}
-          <div
-            className={`orbit-node node-pos-bottom ${activeNode === 'tyres' ? 'active' : ''}`}
-            onClick={() => setActiveNode('tyres')}
+            className={`orbit-node node-pos-left ${activeNode === 'roadside' ? 'active' : ''}`}
+            onClick={() => setActiveNode('roadside')}
           >
             <div className="orbit-node-box" style={{ borderColor: '#FDE68A', background: '#FFFFFF' }}>
               <div className="orbit-icon-wrap" style={{ background: '#FFFBEB' }}>
-                <Settings size={18} color="#D97706" />
+                <Zap size={18} color="#F59E0B" />
               </div>
-              <span className="orbit-stat" style={{ color: '#D97706' }}>30+</span>
+              <span className="orbit-stat" style={{ color: '#F59E0B', fontWeight: 800 }}>SOON</span>
             </div>
-            <span className="orbit-label">Tyre Partners</span>
-          </div>
-
-          {/* Node 4: Left (Dealers) */}
-          <div
-            className={`orbit-node node-pos-left ${activeNode === 'dealers' ? 'active' : ''}`}
-            onClick={() => setActiveNode('dealers')}
-          >
-            <div className="orbit-node-box" style={{ borderColor: '#FBCFE8', background: '#FFFFFF' }}>
-              <div className="orbit-icon-wrap" style={{ background: '#FDF2F8' }}>
-                <Store size={18} color="#EC4899" />
-              </div>
-              <span className="orbit-stat" style={{ color: '#EC4899' }}>50+</span>
-            </div>
-            <span className="orbit-label">Dealers</span>
+            <span className="orbit-label">Tyres & Roadside</span>
           </div>
         </div>
 
@@ -233,7 +233,23 @@ export default function EcosystemSection() {
                     <IconC size={20} color={current.color} />
                   </div>
                   <div className="detail-text">
-                    <h4>{current.title} <span style={{ color: current.color }}>({current.stat})</span></h4>
+                    <h4>
+                      {current.title} 
+                      <span style={{ 
+                        color: current.color,
+                        background: current.bg,
+                        borderColor: current.border,
+                        marginLeft: '8px',
+                        fontSize: '0.72rem',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        borderWidth: '1px',
+                        borderStyle: 'solid',
+                        fontWeight: '800'
+                      }}>
+                        {current.stat === 'LIVE' ? '● LIVE NOW' : '⏳ COMING SOON'}
+                      </span>
+                    </h4>
                     <p>{current.desc}</p>
                   </div>
                 </div>
@@ -246,19 +262,19 @@ export default function EcosystemSection() {
         <div className="ecosystem-feature-pills">
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>SERVICE BOOKING</span>
+            <span>PRIVATE MASKED CALLS</span>
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>JOB ASSIGNMENTS</span>
+            <span>DOORSTEP FOAM WASH</span>
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>TYRE ORDERS</span>
+            <span>TRANSPARENT PRICING</span>
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>LEAD GENERATION</span>
+            <span>NO APP REQUIRED TO SCAN</span>
           </div>
         </div>
       </div>
@@ -268,7 +284,7 @@ export default function EcosystemSection() {
           background: #F8FAFC;
           border-top: 1px solid #E2E8F0;
           border-bottom: 1px solid #E2E8F0;
-          padding: 80px 0;
+          padding: 40px 0;
         }
 
         .ecosystem-pill {

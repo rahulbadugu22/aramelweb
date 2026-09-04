@@ -38,7 +38,7 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
             <h4 className="footer-heading">FindOwner QR</h4>
             <ul className="footer-links">
               <li><a href="#findowner">How FindOwner Works</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order Decal (₹99)</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order Tag (₹99)</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Test Scanner Simulator</a></li>
               <li><a href="#findowner">Privacy Guarantee</a></li>
             </ul>
@@ -85,7 +85,7 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
         .footer-section {
           background: #F1F5F9;
           border-top: 1px solid #E2E8F0;
-          padding: 64px 0 40px 0;
+          padding: 44px 0 36px 0;
           color: #475569;
         }
 
@@ -93,24 +93,30 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
           display: grid;
           grid-template-columns: 1.4fr 1fr 1fr 1fr;
           gap: 36px;
-          margin-bottom: 48px;
+          margin-bottom: 32px;
         }
 
         .footer-logo {
           display: flex;
           align-items: center;
           text-decoration: none;
-          margin-bottom: 18px;
-          height: 48px;
+          margin-bottom: 22px;
+          height: 56px;
+          min-width: 180px;
           overflow: visible;
         }
 
         .footer-logo-img {
-          height: 50px;
+          height: 60px;
           width: auto;
           object-fit: contain;
-          transform: scale(1.5);
+          transform: scale(2.2);
           transform-origin: left center;
+          transition: transform 0.2s ease;
+        }
+
+        .footer-logo-img:hover {
+          transform: scale(2.28);
         }
 
         .footer-brand-desc {
@@ -210,6 +216,15 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
           .footer-top-grid {
             grid-template-columns: 1fr;
             gap: 28px;
+          }
+          .footer-logo {
+            margin-bottom: 20px;
+            height: 52px;
+          }
+          .footer-logo-img {
+            height: 56px;
+            transform: scale(2.2);
+            transform-origin: left center;
           }
           .footer-bottom-bar {
             flex-direction: column;

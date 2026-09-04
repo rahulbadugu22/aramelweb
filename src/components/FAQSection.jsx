@@ -11,19 +11,19 @@ export default function FAQSection() {
     },
     {
       q: 'Does a person scanning my QR tag need to download the CarFrnd app?',
-      a: 'No! Anyone with a smartphone camera can simply point their camera at your FindOwner QR decal. It instantly opens a web-based reporting screen in their browser without requiring any app download or sign-up.'
+      a: 'No! Anyone with a smartphone camera can simply point their camera at your FindOwner QR tag. It instantly opens a web-based reporting screen in their browser without requiring any app download or sign-up.'
     },
     {
       q: 'Are there any monthly subscription fees for FindOwner QR tags?',
-      a: 'No. FindOwner is a one-time purchase of ₹99 for your weather-resistant windshield decal. There are zero recurring monthly or annual subscription fees.'
+      a: 'No. FindOwner is a one-time purchase of ₹99 for your weather-resistant windshield QR tag. There are zero recurring monthly or annual subscription fees.'
     },
     {
       q: 'How do doorstep car wash & detailing services work?',
       a: 'Our certified mobile detailing units bring eco-friendly water, high-pressure foam machines, and power points directly to your home or office parking space. You just choose your preferred time slot!'
     },
     {
-      q: 'What happens if my FindOwner decal gets damaged or faded?',
-      a: 'All CarFrnd FindOwner decals are manufactured with UV-resistant laminated material. In case of windshield replacement or damage, you can order a replacement tag for ₹49 directly from the app or website.'
+      q: 'What happens if my FindOwner QR tag gets damaged or faded?',
+      a: 'All CarFrnd FindOwner QR tags are manufactured with UV-resistant laminated material. In case of windshield replacement or damage, you can order a replacement tag for ₹49 directly from the app or website.'
     }
   ];
 
@@ -82,8 +82,9 @@ export default function FAQSection() {
       </div>
 
       <style>{`
-        .faq-section {
+        section.faq-section {
           background: #FFFFFF;
+          padding-top: 28px;
         }
 
         .faq-accordion {
@@ -142,7 +143,7 @@ export default function FAQSection() {
 
         .faq-support-box {
           max-width: 860px;
-          margin: 40px auto 0 auto;
+          margin: 28px auto 0 auto;
           padding: 24px 28px;
           display: flex;
           align-items: center;
@@ -183,6 +184,9 @@ export default function FAQSection() {
         }
 
         @media (max-width: 768px) {
+          section.faq-section {
+            padding-top: 16px;
+          }
           .faq-support-box {
             flex-direction: column;
             text-align: center;

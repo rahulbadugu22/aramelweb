@@ -24,7 +24,7 @@ export default function AppShowcaseSection() {
       label: 'Find Owner',
       icon: Shield,
       title: 'Smart FindOwner QR Protection',
-      desc: 'Experience complete privacy protection. Anyone can scan your windshield decal with their phone camera to send an alert or connect via 100% anonymous masked call without seeing your number.'
+      desc: 'Experience complete privacy protection. Anyone can scan your windshield QR tag with their phone camera to send an alert or connect through anonymous masked voice calls without seeing your number.'
     },
     {
       id: 'track',
@@ -160,7 +160,7 @@ export default function AppShowcaseSection() {
                 {activeTab === 'findowner' ? (
                   scanStep === 1 ? (
                     <>
-                      <span className="bubble-bold">Windshield Decal Scanned</span>
+                      <span className="bubble-bold">Windshield QR Tag Scanned</span>
                       <span className="bubble-sub">Camera Live • Instant Resolver</span>
                     </>
                   ) : scanStep === 2 ? (
@@ -244,7 +244,7 @@ export default function AppShowcaseSection() {
                           <div className="qr-box-centered">
                             <QrCode size={56} color="#FFFFFF" className="mock-qr-icon" />
                           </div>
-                          <span className="scan-radar-txt">Scanning Windshield Decal...</span>
+                          <span className="scan-radar-txt">Scanning Windshield QR Tag...</span>
                           <span className="scan-vnum-detect">Target: MH 01 AB 1234</span>
                         </div>
                       )}
@@ -459,7 +459,7 @@ export default function AppShowcaseSection() {
         .app-showcase-section {
           background: #FFFFFF;
           color: #0F172A;
-          padding: 80px 0;
+          padding: 40px 0;
           position: relative;
           overflow: hidden;
           border-top: 1px solid #E2E8F0;
@@ -501,7 +501,7 @@ export default function AppShowcaseSection() {
           font-size: 1.02rem;
           color: #64748B;
           max-width: 600px;
-          margin: 0 auto 40px auto;
+          margin: 0 auto 24px auto;
           line-height: 1.6;
         }
 

@@ -42,7 +42,7 @@ export default function OrderTagSection({ onOpenScanner }) {
 
               <h2 className="order-title">
                 Get Your Weatherproof <br />
-                <span className="magenta-gradient-text">FindOwner QR Decal</span>
+                <span className="magenta-gradient-text">FindOwner QR Tag</span>
               </h2>
 
               <p className="order-subtitle">
@@ -51,7 +51,7 @@ export default function OrderTagSection({ onOpenScanner }) {
 
               {/* Decal Style Selection */}
               <div className="style-selector-box">
-                <span className="picker-lbl">SELECT DECAL DESIGN:</span>
+                <span className="picker-lbl">SELECT TAG DESIGN:</span>
                 <div className="style-options">
                   {['Magenta Stealth', 'Cyber Carbon', 'Minimalist White'].map((st) => (
                     <button
@@ -96,7 +96,7 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
                   <h3>Order Confirmed! 🎉</h3>
                   <p className="success-txt">
-                    Thank you <strong>{name}</strong>! Your <strong>{quantity}x FindOwner Decal ({styleTheme})</strong> order has been placed successfully.
+                    Thank you <strong>{name}</strong>! Your <strong>{quantity}x FindOwner QR Tag ({styleTheme})</strong> order has been placed successfully.
                   </p>
                   <div className="tracking-box">
                     <span>Order ID: <code>CF-{Math.floor(100000 + Math.random() * 900000)}</code></span>
@@ -184,8 +184,9 @@ export default function OrderTagSection({ onOpenScanner }) {
       </div>
 
       <style>{`
-        .order-section {
+        section.order-section {
           background: #F8FAFC;
+          padding-bottom: 20px;
         }
 
         .order-box {
@@ -506,6 +507,9 @@ export default function OrderTagSection({ onOpenScanner }) {
         }
 
         @media (max-width: 900px) {
+          section.order-section {
+            padding-bottom: 12px;
+          }
           .order-grid {
             grid-template-columns: 1fr;
             gap: 22px;

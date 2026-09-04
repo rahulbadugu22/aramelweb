@@ -14,7 +14,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
           <div className="glass-pill hero-badge animate-float">
             <span className="badge-dot"></span>
             <Sparkles size={13} />
-            <span>FINDOWNER QR SYSTEM IS NOW LIVE</span>
+            <span>FINDOWNER QR TAG IS NOW LIVE</span>
           </div>
 
           <h1 className="hero-title">
@@ -25,19 +25,19 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
 
           <p className="hero-description">
             Never display your personal phone number on your dashboard again. With 
-            <strong> FindOwner QR Decals</strong>, anyone can notify you of blocking, 
-            lights left on, or towing alerts via 100% anonymous masked voice calls.
+            <strong> FindOwner QR Tag</strong>, anyone can notify you of blocking, 
+            lights left on, or towing alerts through anonymous masked voice calls.
           </p>
 
           {/* Key Value Bullets */}
           <div className="hero-bullets">
             <div className="bullet-item">
               <CheckCircle2 size={16} className="bullet-icon" />
-              <span>100% Mobile Number Privacy</span>
+              <span>Your Phone Number Stays Private</span>
             </div>
             <div className="bullet-item">
               <CheckCircle2 size={16} className="bullet-icon" />
-              <span>No App Download for Scanners</span>
+              <span>No App Required to Scan</span>
             </div>
             <div className="bullet-item">
               <CheckCircle2 size={16} className="bullet-icon" />
@@ -116,7 +116,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
             {/* Quick Interactive Scanner Trigger Box */}
             <div className="quick-scan-prompt" onClick={onOpenScanner}>
               <div className="scan-prompt-text">
-                <span className="prompt-title">Scan this Decal with Camera</span>
+                <span className="prompt-title">Scan this QR Tag with Camera</span>
                 <span className="prompt-sub">Click to test instant alert dispatch</span>
               </div>
               <div className="prompt-arrow">
@@ -131,7 +131,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
         .hero-section {
           position: relative;
           padding-top: 105px;
-          padding-bottom: 60px;
+          padding-bottom: 36px;
           overflow: hidden;
           background: #FFFFFF;
         }

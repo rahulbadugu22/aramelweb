@@ -18,7 +18,7 @@ export default function EcosystemSection() {
     {
       id: 'carwash',
       title: 'Doorstep Car Wash',
-      stat: 'LIVE',
+      stat: 'COMING SOON',
       icon: Sparkles,
       color: '#10B981',
       bg: '#ECFDF5',
@@ -177,7 +177,7 @@ export default function EcosystemSection() {
             <span className="orbit-label">FindOwner QR Tag</span>
           </div>
 
-          {/* Node 2: Right (Doorstep Car Wash - LIVE) */}
+          {/* Node 2: Right (Doorstep Car Wash - COMING SOON) */}
           <div
             className={`orbit-node node-pos-right ${activeNode === 'carwash' ? 'active' : ''}`}
             onClick={() => setActiveNode('carwash')}
@@ -186,7 +186,7 @@ export default function EcosystemSection() {
               <div className="orbit-icon-wrap" style={{ background: '#ECFDF5' }}>
                 <Sparkles size={18} color="#10B981" />
               </div>
-              <span className="orbit-stat" style={{ color: '#10B981', fontWeight: 800 }}>LIVE</span>
+              <span className="orbit-stat" style={{ color: '#10B981', fontWeight: 800 }}>SOON</span>
             </div>
             <span className="orbit-label">Doorstep Car Wash</span>
           </div>
@@ -266,7 +266,7 @@ export default function EcosystemSection() {
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>DOORSTEP FOAM WASH</span>
+            <span>DOORSTEP WASH (SOON)</span>
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>

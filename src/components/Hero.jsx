@@ -41,7 +41,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
             </div>
             <div className="bullet-item">
               <CheckCircle2 size={16} className="bullet-icon" />
-              <span>Instant Doorstep Car Wash</span>
+              <span>Doorstep Car Wash (Coming Soon)</span>
             </div>
           </div>
 

@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 export default function ScanSimulatorModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
   const [vehicleNo] = useState('MH 01 AB 1234');
-  const [selectedIssue, setSelectedIssue] = useState('Car Blocking Driveway');
+  const [selectedIssue, setSelectedIssue] = useState('Car Blocking Driveway / Gate');
   const [customNote, setCustomNote] = useState('');
   const [isSending, setIsSending] = useState(false);
 
@@ -13,9 +13,9 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
 
   const issues = [
     { label: 'Car Blocking Driveway / Gate', icon: AlertTriangle },
-    { label: 'Headlights / Hazard Lights Left ON', icon: Lightbulb },
-    { label: 'Car Window Left Rolled Down', icon: Camera },
-    { label: 'Emergency / Towing Warning', icon: ShieldAlert },
+    { label: 'Headlights / Hazard Lights Left On', icon: Lightbulb },
+    { label: 'Car Window Left Open', icon: Camera },
+    { label: 'Emergency / Towing Alert', icon: ShieldAlert },
   ];
 
   const handleDispatch = () => {
@@ -33,7 +33,7 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
 
   const handleReset = () => {
     setStep(1);
-    setSelectedIssue('Car Blocking Driveway');
+    setSelectedIssue('Car Blocking Driveway / Gate');
     setCustomNote('');
   };
 
@@ -45,9 +45,9 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
         {/* Viewfinder Header */}
         <div className="sim-header">
           <div className="sim-badge">
-            <span className="dot-red"></span> LIVE CAM SCANNER SIMULATOR
+            <span className="dot-red"></span> LIVE FINDOWNER QR SCANNER
           </div>
-          <h3>FindOwner App-less Scanner</h3>
+          <h3>FindOwner App-Free Scanner</h3>
         </div>
 
         {/* Step 1 & 2: Camera View & Issue Selector */}
@@ -66,14 +66,15 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
                 <QrCode size={36} color="#FF2B85" />
                 <div className="scanned-info">
                   <span className="v-plate">{vehicleNo}</span>
-                  <span className="v-tagid">Tag Verified • ID: KA560100MM1234</span>
+                  <span className="v-tagid">FindOwner QR Tag Verified</span>
+                  <span className="v-tagid-sub">Tag ID: KA560100MM1234</span>
                 </div>
               </div>
             </div>
 
             {/* Issue Selection Section */}
             <div className="issue-selection-section">
-              <span className="section-label">SELECT REASON TO NOTIFY OWNER:</span>
+              <span className="section-label">SELECT A REASON TO NOTIFY THE OWNER</span>
               <div className="issue-grid">
                 {issues.map((iss) => {
                   const IconC = iss.icon;
@@ -94,7 +95,7 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
               <div className="form-group mt-12">
                 <input
                   type="text"
-                  placeholder="Add optional note (e.g., Parked near gate #2)..."
+                  placeholder="Add an optional note (e.g., Parked near gate #2...)"
                   value={customNote}
                   onChange={(e) => setCustomNote(e.target.value)}
                   style={{
@@ -117,7 +118,7 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
               >
                 {isSending ? (
                   <>
-                    <RefreshCw size={18} className="spin-icon" /> Encrypting & Sending Alert...
+                    <RefreshCw size={18} className="spin-icon" /> Sending Secure Alert...
                   </>
                 ) : (
                   <>
@@ -136,24 +137,24 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
               <div className="call-avatar-wrap pulse-ring">
                 <PhoneCall size={38} color="#059669" />
               </div>
-              <h4>Anonymous Call Bridge Connected!</h4>
+              <h4>Masked Call Connected</h4>
               <span className="issue-recap">Reason: "{selectedIssue}"</span>
 
               <div className="masked-phone-display">
-                <span className="phone-line">Caller ID: <code>+91 98XXX XXXXX</code></span>
-                <span className="phone-line">Owner ID: <code>+91 97XXX XXXXX</code></span>
+                <span className="phone-line">Caller ID: <code>Hidden</code></span>
+                <span className="phone-line">Owner ID: <code>Hidden</code></span>
                 <span className="privacy-shield-txt">
-                  <PhoneOff size={14} /> 100% Privacy Preserved. Real numbers hidden on both sides.
+                  <PhoneOff size={14} /> Phone numbers remain hidden from both sides.
                 </span>
               </div>
 
               <div className="alert-delivered-badge">
-                <CheckCircle2 size={18} color="#059669" /> Push Alert & Masked Call Sent to Owner's Phone!
+                <CheckCircle2 size={18} color="#059669" /> Owner Notified & Masked Call Connected
               </div>
 
               <div className="success-modal-actions">
                 <button className="btn-secondary" onClick={handleReset}>
-                  Test Another Scan
+                  Scan Another FindOwner QR
                 </button>
                 <button className="btn-primary" onClick={onClose}>
                   Done
@@ -286,6 +287,13 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
           font-size: 0.72rem;
           color: #059669;
           font-weight: 700;
+        }
+
+        .v-tagid-sub {
+          font-size: 0.7rem;
+          color: #64748B;
+          font-weight: 700;
+          font-family: monospace;
         }
 
         .section-label {

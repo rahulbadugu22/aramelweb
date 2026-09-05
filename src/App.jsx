@@ -10,9 +10,13 @@ import FAQSection from './components/FAQSection';
 import Footer from './components/Footer';
 import ScanSimulatorModal from './components/ScanSimulatorModal';
 import MobileBottomNav from './components/MobileBottomNav';
+import DoorstepWashModal from './components/DoorstepWashModal';
+import AccountModal from './components/AccountModal';
 
 export default function App() {
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [doorstepModalOpen, setDoorstepModalOpen] = useState(false);
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
 
   const handleOpenScanner = () => {
     setScannerOpen(true);
@@ -35,6 +39,7 @@ export default function App() {
       <Navbar
         onOpenScanner={handleOpenScanner}
         onOpenOrderTag={handleScrollToOrder}
+        onOpenAccount={() => setAccountModalOpen(true)}
       />
 
       {/* Main Content Sections */}
@@ -43,13 +48,17 @@ export default function App() {
         <Hero
           onOpenScanner={handleOpenScanner}
           onOpenOrderTag={handleScrollToOrder}
+          onOpenDoorstepWash={() => setDoorstepModalOpen(true)}
         />
 
         {/* 2. The Automotive Ecosystem Section (One below another below Home) */}
         <EcosystemSection />
 
-        {/* 3. See CarFrnd in Action (5 Screens with Animated Customer Scanning Flow) */}
-        <AppShowcaseSection />
+        {/* 3. See FindOwner in Action (Live Customer Scanning Flow) */}
+        <AppShowcaseSection
+          onOpenScanner={handleOpenScanner}
+          onOpenOrderTag={handleScrollToOrder}
+        />
 
         {/* 4. Live Auto Services Showcase */}
         <LiveServices
@@ -78,12 +87,26 @@ export default function App() {
       <MobileBottomNav
         onOpenScanner={handleOpenScanner}
         onOpenOrderTag={handleScrollToOrder}
+        onOpenAccount={() => setAccountModalOpen(true)}
       />
 
-      {/* Global Interactive QR Scanner Modal Simulator */}
+      {/* Global Interactive QR Scanner Modal */}
       <ScanSimulatorModal
         isOpen={scannerOpen}
         onClose={handleCloseScanner}
+      />
+
+      {/* Doorstep Car Wash Coming Soon Modal */}
+      <DoorstepWashModal
+        isOpen={doorstepModalOpen}
+        onClose={() => setDoorstepModalOpen(false)}
+      />
+
+      {/* CarFrnd Account / Profile Modal */}
+      <AccountModal
+        isOpen={accountModalOpen}
+        onClose={() => setAccountModalOpen(false)}
+        onOpenOrderTag={handleScrollToOrder}
       />
     </div>
   );

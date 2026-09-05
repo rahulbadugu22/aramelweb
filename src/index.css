@@ -187,7 +187,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-padding {
-  padding: 40px 0;
+  padding: 36px 0;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-header.text-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.section-header .glass-pill {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 2.35rem;
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+
+.section-subtitle {
+  font-size: 1.02rem;
+  color: #64748B;
+  max-width: 640px;
+  line-height: 1.6;
+  margin: 0 auto;
 }
 
 .text-center {

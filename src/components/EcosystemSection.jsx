@@ -266,7 +266,7 @@ export default function EcosystemSection() {
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>
-            <span>DOORSTEP WASH (SOON)</span>
+            <span>DOORSTEP CAR WASH</span>
           </div>
           <div className="eco-pill">
             <span className="eco-dot"></span>

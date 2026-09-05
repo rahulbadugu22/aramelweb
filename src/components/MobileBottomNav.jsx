@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Shield, QrCode, Wrench, ShoppingBag } from 'lucide-react';
+import { Home, QrCode, ShoppingBag } from 'lucide-react';
 
-export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag }) {
+export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag, onOpenAccount }) {
   const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 200;
+      const scrollPos = window.scrollY + 250;
       const orderEl = document.getElementById('order-tag');
-      const servicesEl = document.getElementById('live-services');
-      const appShowcaseEl = document.getElementById('app-showcase');
-      const ecosystemEl = document.getElementById('ecosystem');
 
       if (orderEl && scrollPos >= orderEl.offsetTop) {
         setActiveTab('order');
-      } else if (servicesEl && scrollPos >= servicesEl.offsetTop) {
-        setActiveTab('services');
-      } else if (appShowcaseEl && scrollPos >= appShowcaseEl.offsetTop) {
-        setActiveTab('app-showcase');
-      } else if (ecosystemEl && scrollPos >= ecosystemEl.offsetTop) {
-        setActiveTab('ecosystem');
       } else {
         setActiveTab('home');
       }
@@ -47,17 +38,8 @@ export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag }) {
           className={`nav-tab-item ${activeTab === 'home' ? 'active' : ''}`}
           onClick={() => scrollToSection('home', 'home')}
         >
-          <Home size={20} />
+          <Home size={22} />
           <span>Home</span>
-        </button>
-
-        {/* Services Tab */}
-        <button
-          className={`nav-tab-item ${activeTab === 'services' ? 'active' : ''}`}
-          onClick={() => scrollToSection('live-services', 'services')}
-        >
-          <Wrench size={20} />
-          <span>Services</span>
         </button>
 
         {/* Center Prominent Scan QR Floating Button */}
@@ -70,16 +52,7 @@ export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag }) {
           <span className="fab-badge">LIVE</span>
         </div>
 
-        {/* App Demo Tab */}
-        <button
-          className={`nav-tab-item ${activeTab === 'app-showcase' ? 'active' : ''}`}
-          onClick={() => scrollToSection('app-showcase', 'app-showcase')}
-        >
-          <Shield size={20} />
-          <span>App Demo</span>
-        </button>
-
-        {/* Order Decal Tab */}
+        {/* Get Tag Tab */}
         <button
           className={`nav-tab-item ${activeTab === 'order' ? 'active' : ''}`}
           onClick={() => {
@@ -87,7 +60,7 @@ export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag }) {
             if (onOpenOrderTag) onOpenOrderTag();
           }}
         >
-          <ShoppingBag size={20} />
+          <ShoppingBag size={22} />
           <span>Get Tag</span>
         </button>
       </div>

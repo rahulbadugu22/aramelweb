@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Smartphone, Sparkles, Menu, X, Shield, Wrench } from 'lucide-react';
+import { QrCode, Smartphone, Sparkles, Menu, X, Shield, Wrench, User } from 'lucide-react';
 
-export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
+export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,11 +29,11 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
         <nav className="desktop-nav">
           <a href="#app-showcase" className="nav-link">
             <Smartphone className="nav-icon" size={16} />
-            App Demo
+            How It Works
           </a>
           <a href="#live-services" className="nav-link">
             <Wrench className="nav-icon" size={16} />
-            Live Services
+            Auto Services
           </a>
           <a href="#coming-soon" className="nav-link">
             Coming Soon
@@ -44,11 +44,15 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
         <div className="nav-actions">
           <button className="btn-scanner-shortcut" onClick={onOpenScanner}>
             <QrCode size={16} />
-            <span>Scan QR Demo</span>
+            <span>Scan QR</span>
           </button>
           <button className="btn-primary btn-nav-cta" onClick={onOpenOrderTag}>
             <Sparkles size={15} />
-            <span>Get Tag ₹99</span>
+            <span>Get Tag ₹450</span>
+          </button>
+          <button className="btn-account-nav" onClick={onOpenAccount} title="My Account">
+            <User size={15} />
+            <span>Account</span>
           </button>
 
           {/* Mobile Hamburger Toggle */}
@@ -61,15 +65,16 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
-          <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>See CarFrnd in Action</a>
-          <a href="#live-services" onClick={() => setMobileMenuOpen(false)}>Live Auto Services</a>
+          <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>How FindOwner Works</a>
+          <a href="#live-services" onClick={() => setMobileMenuOpen(false)}>Auto Services</a>
           <a href="#coming-soon" onClick={() => setMobileMenuOpen(false)}>Coming Soon Services</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
-              Order FindOwner Tag (₹99)
+              Get Your FindOwner QR Tag — ₹450
             </button>
             <button className="btn-secondary full-w" onClick={() => { setMobileMenuOpen(false); onOpenScanner(); }}>
-              <QrCode size={16} /> Test Scanner Demo
+              <QrCode size={16} /> Scan a FindOwner QR
             </button>
           </div>
         </div>
@@ -201,6 +206,27 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
           border-radius: 10px;
         }
 
+        .btn-account-nav {
+          background: #F8FAFC;
+          color: #1E293B;
+          border: 1px solid #CBD5E1;
+          padding: 8px 14px;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+        }
+
+        .btn-account-nav:hover {
+          background: var(--magenta-light);
+          color: var(--magenta);
+          border-color: var(--magenta-border);
+        }
+
         .mobile-menu-btn {
           display: none;
           background: none;
@@ -263,6 +289,9 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag }) {
           }
           .btn-nav-cta {
             display: none; /* Hide on mobile so it doesn't overlap logo/hamburger */
+          }
+          .btn-account-nav {
+            display: none;
           }
           .brand-logo {
             height: 48px;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Truck, Lock, QrCode, Car } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, Lock, Car } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 
 export default function OrderTagSection({ onOpenScanner }) {
@@ -11,7 +12,7 @@ export default function OrderTagSection({ onOpenScanner }) {
   const [address, setAddress] = useState('');
   const [orderConfirmed, setOrderConfirmed] = useState(false);
 
-  const unitPrice = 99;
+  const unitPrice = 450;
   const totalPrice = unitPrice * quantity;
 
   const handleOrderSubmit = (e) => {
@@ -37,7 +38,7 @@ export default function OrderTagSection({ onOpenScanner }) {
             <div className="order-preview-col">
               <div className="glass-pill">
                 <Sparkles size={13} />
-                <span>SPECIAL LAUNCH OFFER — ₹99 ONLY</span>
+                <span>SPECIAL LAUNCH OFFER — ₹450 (INCL. GST)</span>
               </div>
 
               <h2 className="order-title">
@@ -46,7 +47,7 @@ export default function OrderTagSection({ onOpenScanner }) {
               </h2>
 
               <p className="order-subtitle">
-                Protect your personal phone number, avoid parking disputes, and receive instant emergency alerts. Delivered to your doorstep in 3-5 days.
+                Protect your personal phone number and receive alerts about your car. Delivered to your doorstep in 3–5 business days.
               </p>
 
               {/* Decal Style Selection */}
@@ -68,20 +69,22 @@ export default function OrderTagSection({ onOpenScanner }) {
               {/* Visual Preview Graphic based on style */}
               <div className={`decal-visual-preview ${styleTheme.toLowerCase().replace(' ', '-')}`}>
                 <div className="preview-header">
-                  <span className="p-brand">CarFrnd FindOwner</span>
-                  <span className="p-badge">UV RESISTANT</span>
+                  <span className="p-brand">FindOwner QR Tag</span>
                 </div>
                 <div className="preview-qr-row">
                   <div className="preview-qr-box">
-                    <QrCode size={76} className="preview-qr-img" />
-                    <div className="preview-center-icon">
-                      <Car size={13} color="#FF2B85" />
-                    </div>
+                    <QRCodeSVG
+                      value={`https://carfrnd.com/scan?tag=KA560100MM1234&v=${encodeURIComponent(vehicleNo.trim() || 'MH01AB1234')}`}
+                      size={76}
+                      level="M"
+                      fgColor="#0F172A"
+                      bgColor="#FFFFFF"
+                    />
                   </div>
                   <div className="preview-meta">
                     <span className="p-vnum">{vehicleNo ? vehicleNo.toUpperCase() : 'YOUR CAR NO.'}</span>
                     <span className="p-tagid">SCAN TO CONTACT OWNER</span>
-                    <span className="p-sec">100% Phone Number Masked</span>
+                    <span className="p-sec">Phone Number Stays Private</span>
                   </div>
                 </div>
               </div>
@@ -133,7 +136,7 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
 
                   <div className="form-group">
-                    <label>Vehicle Number (Optional to Pre-Print)</label>
+                    <label>Vehicle Number (Optional — For Pre-Printing)</label>
                     <input
                       type="text"
                       placeholder="e.g. MH 01 AB 1234"
@@ -143,10 +146,10 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
 
                   <div className="form-group">
-                    <label>Complete Shipping Address</label>
+                    <label>Shipping Address</label>
                     <textarea
                       rows={2}
-                      placeholder="Flat/House No, Street, City, Pincode"
+                      placeholder="Flat/House No., Street, City, State, Pincode"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
@@ -162,9 +165,9 @@ export default function OrderTagSection({ onOpenScanner }) {
                     </div>
 
                     <div className="price-summary-right">
-                      <span className="strike-price">₹{199 * quantity}</span>
+                      <span className="strike-price">₹{799 * quantity}</span>
                       <span className="total-price">₹{totalPrice}</span>
-                      <span className="ship-free">FREE SHIPPING</span>
+                      <span className="ship-free">FREE SHIPPING • INCL. GST</span>
                     </div>
                   </div>
 
@@ -173,8 +176,8 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </button>
 
                   <div className="trust-footer-row">
-                    <div className="t-item"><Truck size={13} /> 3-5 Days Delivery</div>
-                    <div className="t-item"><ShieldCheck size={13} /> 100% Privacy Guarantee</div>
+                    <div className="t-item"><Truck size={13} /> 3–5 Business Days Delivery</div>
+                    <div className="t-item"><ShieldCheck size={13} /> Phone Number Stays Private</div>
                   </div>
                 </form>
               )}
@@ -186,7 +189,8 @@ export default function OrderTagSection({ onOpenScanner }) {
       <style>{`
         section.order-section {
           background: #F8FAFC;
-          padding-bottom: 20px;
+          padding-top: 14px;
+          padding-bottom: 24px;
         }
 
         .order-box {

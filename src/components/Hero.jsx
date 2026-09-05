@@ -1,7 +1,8 @@
 import React from 'react';
 import { ShieldCheck, QrCode, Sparkles, ArrowRight, PhoneOff, CheckCircle2, Car } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
-export default function Hero({ onOpenScanner, onOpenOrderTag }) {
+export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash }) {
   return (
     <section className="hero-section">
       <div className="hero-bg-image"></div>
@@ -24,9 +25,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
           </h1>
 
           <p className="hero-description">
-            Never display your personal phone number on your dashboard again. With 
-            <strong> FindOwner QR Tag</strong>, anyone can notify you of blocking, 
-            lights left on, or towing alerts through anonymous masked voice calls.
+            Stay connected about your car without sharing your personal phone number. With <strong>FindOwner QR Tag</strong>, anyone can notify you of blocking, lights left on, or towing alerts through secure masked communication.
           </p>
 
           {/* Key Value Bullets */}
@@ -39,40 +38,27 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
               <CheckCircle2 size={16} className="bullet-icon" />
               <span>No App Required to Scan</span>
             </div>
-            <div className="bullet-item">
+            <button
+              type="button"
+              className="bullet-item bullet-clickable"
+              onClick={onOpenDoorstepWash}
+              title="Click to view Doorstep Car Wash"
+            >
               <CheckCircle2 size={16} className="bullet-icon" />
-              <span>Doorstep Car Wash (Coming Soon)</span>
-            </div>
+              <span>Doorstep Car Wash</span>
+            </button>
           </div>
 
           {/* Action CTAs */}
           <div className="hero-ctas">
             <button className="btn-primary hero-btn-main" onClick={onOpenOrderTag}>
               <Sparkles size={16} />
-              Order Tag (₹99)
+              Get Your FindOwner QR Tag — ₹450
             </button>
             <button className="btn-secondary hero-btn-sec" onClick={onOpenScanner}>
               <QrCode size={16} />
-              Try Scan Simulator
+              Scan a FindOwner QR
             </button>
-          </div>
-
-          {/* Trust stats ticker */}
-          <div className="hero-stats">
-            <div className="stat-box">
-              <span className="stat-val">50,000+</span>
-              <span className="stat-lbl">Privacy Alerts Sent</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-box">
-              <span className="stat-val">4.9 ★</span>
-              <span className="stat-lbl">Customer Rating</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-box">
-              <span className="stat-val">100%</span>
-              <span className="stat-lbl">Zero Phone Leaks</span>
-            </div>
           </div>
         </div>
 
@@ -83,11 +69,8 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
             <div className="card-top-bar">
               <div className="brand-pill">
                 <ShieldCheck size={15} color="#FF2B85" />
-                <span>CarFrnd FindOwner</span>
+                <span>FindOwner QR Tag</span>
               </div>
-              <span className="status-indicator">
-                <span className="dot-green"></span> ACTIVE
-              </span>
             </div>
 
             {/* Main Decal View */}
@@ -96,7 +79,13 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
               
               <div className="decal-inner">
                 <div className="qr-wrapper">
-                  <QrCode size={96} className="qr-svg-graphic" />
+                  <QRCodeSVG
+                    value="https://carfrnd.com/scan?tag=KA560100MM1234&v=MH01AB1234"
+                    size={96}
+                    level="H"
+                    fgColor="#0F172A"
+                    bgColor="#FFFFFF"
+                  />
                   <div className="qr-logo-center">
                     <Car size={14} color="#FF2B85" />
                   </div>
@@ -104,10 +93,10 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
 
                 <div className="decal-info">
                   <span className="vehicle-num">MH 01 AB 1234</span>
-                  <span className="tag-id-code">ID: KA560100MM1234</span>
+                  <span className="tag-id-code">Tag ID: KA560100MM1234</span>
                   <div className="privacy-badge">
                     <PhoneOff size={12} />
-                    <span>Masked Call Protected</span>
+                    <span>Masked Communication Protected</span>
                   </div>
                 </div>
               </div>
@@ -116,8 +105,8 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
             {/* Quick Interactive Scanner Trigger Box */}
             <div className="quick-scan-prompt" onClick={onOpenScanner}>
               <div className="scan-prompt-text">
-                <span className="prompt-title">Scan this QR Tag with Camera</span>
-                <span className="prompt-sub">Click to test instant alert dispatch</span>
+                <span className="prompt-title">Scan this QR Tag with your Camera</span>
+                <span className="prompt-sub">Tap to experience FindOwner in real time</span>
               </div>
               <div className="prompt-arrow">
                 <ArrowRight size={15} />
@@ -231,43 +220,25 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
           flex-shrink: 0;
         }
 
+        .bullet-clickable {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          font-family: inherit;
+          transition: all 0.2s ease;
+        }
+
+        .bullet-clickable:hover span {
+          color: var(--magenta);
+          text-decoration: underline;
+        }
+
         .hero-ctas {
           display: flex;
           align-items: center;
           gap: 14px;
           margin-bottom: 32px;
-        }
-
-        .hero-stats {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          padding-top: 20px;
-          border-top: 1px solid #E2E8F0;
-        }
-
-        .stat-box {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .stat-val {
-          font-family: var(--font-heading);
-          font-size: 1.35rem;
-          font-weight: 900;
-          color: #0F172A;
-        }
-
-        .stat-lbl {
-          font-size: 0.75rem;
-          color: #64748B;
-          font-weight: 600;
-        }
-
-        .stat-divider {
-          width: 1px;
-          height: 28px;
-          background: #CBD5E1;
         }
 
         /* Right Visual QR Card Mockup */
@@ -489,16 +460,6 @@ export default function Hero({ onOpenScanner, onOpenOrderTag }) {
           .hero-ctas {
             justify-content: center;
             gap: 10px;
-          }
-          .hero-stats {
-            justify-content: center;
-            gap: 16px;
-          }
-          .stat-val {
-            font-size: 1.15rem;
-          }
-          .stat-lbl {
-            font-size: 0.7rem;
           }
         }
 

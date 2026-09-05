@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function Footer({ onOpenScanner, onOpenOrderTag }) {
   return (
@@ -12,8 +12,7 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
               <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="footer-logo-img" />
             </a>
             <p className="footer-brand-desc">
-              India's #1 privacy-first smart vehicle safety tag system & doorstep auto care network. 
-              Protecting car owners and delivering premium maintenance at your doorstep.
+              Privacy-first smart vehicle safety tag system. Helping car owners stay connected while keeping their personal phone number private.
             </p>
             <div className="footer-contact-info">
               <div className="c-item">
@@ -21,62 +20,27 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
                 <span className="c-label">Support: </span>
                 <a href="mailto:support@carfrnd.com" className="email-link">support@carfrnd.com</a>
               </div>
-              <div className="c-item">
-                <Phone size={15} color="#FF2B85" /> 
-                <span className="c-label">24/7 Helpline: </span>
-                <a href="tel:1800227376" className="email-link">+91 1800-CARFRND</a>
-              </div>
-              <div className="c-item">
-                <MapPin size={15} color="#FF2B85" /> 
-                <span className="c-label">HQ: Sector 44, Gurugram, NCR, India</span>
-              </div>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* FindOwner Links */}
           <div className="footer-col">
             <h4 className="footer-heading">FindOwner QR</h4>
             <ul className="footer-links">
-              <li><a href="#findowner">How FindOwner Works</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order Tag (₹99)</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Test Scanner Simulator</a></li>
-              <li><a href="#findowner">Privacy Guarantee</a></li>
-            </ul>
-          </div>
-
-          {/* Live Services */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Live Services</h4>
-            <ul className="footer-links">
-              <li><a href="#live-services">Door-step Car Wash</a></li>
-              <li><a href="#live-services">Car Wash Station</a></li>
-              <li><a href="#live-services">Car Detailing & Coating</a></li>
-              <li><a href="#live-services">Buy Branded Tyres</a></li>
-              <li><a href="#live-services">Wheel Alignment & Balancing</a></li>
-            </ul>
-          </div>
-
-          {/* Coming Soon & App */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Mobile App & Future</h4>
-            <ul className="footer-links">
-              <li><a href="#app-download">Download iOS App</a></li>
-              <li><a href="#app-download">Download Android App</a></li>
-              <li><a href="#coming-soon">24/7 Roadside Assistance</a></li>
-              <li><a href="#coming-soon">FASTag & Insurance Renewals</a></li>
-              <li><a href="#coming-soon">Traffic Challan Auto-Pay</a></li>
-              <li><a href="#coming-soon">EV Charging Station Finder</a></li>
+              <li><a href="#app-showcase">How FindOwner Works</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order FindOwner QR Tag (₹450)</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Scan a FindOwner QR</a></li>
+              <li><a href="#app-showcase">Privacy & Phone Number Protection</a></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="footer-bottom-bar">
-          <p>© {new Date().getFullYear()} CarFrnd Technologies India Pvt. Ltd. All rights reserved.</p>
+          <p>© 2026 CarFrnd Technologies India Pvt. Ltd.</p>
           <div className="footer-legal-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
-            <a href="#">Security Audit</a>
           </div>
         </div>
       </div>
@@ -91,8 +55,8 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
 
         .footer-top-grid {
           display: grid;
-          grid-template-columns: 1.4fr 1fr 1fr 1fr;
-          gap: 36px;
+          grid-template-columns: 1.8fr 1fr;
+          gap: 48px;
           margin-bottom: 32px;
         }
 

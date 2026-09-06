@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import EcosystemSection from './components/EcosystemSection';
 import AppShowcaseSection from './components/AppShowcaseSection';
 import LiveServices from './components/LiveServices';
 import ComingSoonServices from './components/ComingSoonServices';
@@ -51,10 +50,7 @@ export default function App() {
           onOpenDoorstepWash={() => setDoorstepModalOpen(true)}
         />
 
-        {/* 2. The Automotive Ecosystem Section (One below another below Home) */}
-        <EcosystemSection />
-
-        {/* 3. See FindOwner in Action (Live Customer Scanning Flow) */}
+        {/* 2. See FindOwner in Action (Live Customer Scanning Flow) */}
         <AppShowcaseSection
           onOpenScanner={handleOpenScanner}
           onOpenOrderTag={handleScrollToOrder}

@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AppShowcaseSection from './components/AppShowcaseSection';
 import LiveServices from './components/LiveServices';
-import ComingSoonServices from './components/ComingSoonServices';
 import OrderTagSection from './components/OrderTagSection';
 import FAQSection from './components/FAQSection';
 import Footer from './components/Footer';
@@ -61,10 +60,7 @@ export default function App() {
           onOpenOrderTag={handleScrollToOrder}
         />
 
-        {/* 5. Coming Soon Services */}
-        <ComingSoonServices />
-
-        {/* 6. Order Tag Section */}
+        {/* 5. Order Tag Section */}
         <OrderTagSection
           onOpenScanner={handleOpenScanner}
         />

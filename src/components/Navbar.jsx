@@ -35,9 +35,6 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
             <Wrench className="nav-icon" size={16} />
             Auto Services
           </a>
-          <a href="#coming-soon" className="nav-link">
-            Coming Soon
-          </a>
         </nav>
 
         {/* Action CTAs */}
@@ -67,7 +64,6 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
         <div className="mobile-drawer">
           <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>How FindOwner Works</a>
           <a href="#live-services" onClick={() => setMobileMenuOpen(false)}>Auto Services</a>
-          <a href="#coming-soon" onClick={() => setMobileMenuOpen(false)}>Coming Soon Services</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>

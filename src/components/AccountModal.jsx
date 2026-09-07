@@ -59,7 +59,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
             {/* Quick Stats / Registered Tags Box */}
             <div className="account-section">
               <div className="section-title-row">
-                <span className="section-label">ACTIVE FINDOWNER QR TAGS</span>
+                <span className="section-label">ACTIVE CARFRND TAGS</span>
                 <span className="badge-active">1 Tag Active</span>
               </div>
 
@@ -131,7 +131,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
                   <Sparkles size={18} color="#FF2B85" />
                 </div>
                 <div className="order-s-info">
-                  <span className="order-s-title">FindOwner QR Tag (Magenta Stealth)</span>
+                  <span className="order-s-title">CarFrnd Tag (Magenta Stealth)</span>
                   <span className="order-s-sub">Order #CF-842918 • Dispatched (Expected in 2 days)</span>
                 </div>
                 <span className="order-status-chip">In Transit</span>
@@ -167,7 +167,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
 
             <h3 className="login-title">CarFrnd Owner Login</h3>
             <p className="login-desc">
-              Manage your registered FindOwner QR tags, emergency contact alerts, and doorstep auto services.
+              Manage your registered CarFrnd Tags, emergency contact alerts, and doorstep auto services.
             </p>
 
             <form onSubmit={handleLoginSubmit} className="login-form">

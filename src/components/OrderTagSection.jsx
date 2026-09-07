@@ -41,11 +41,11 @@ export default function OrderTagSection({ onOpenScanner }) {
 
               <h2 className="order-title">
                 Get Your Weatherproof <br />
-                <span className="magenta-gradient-text">FindOwner QR Tag</span>
+                <span className="magenta-gradient-text">CarFrnd Tag</span>
               </h2>
 
               <p className="order-subtitle">
-                Protect your personal phone number and receive alerts about your car. Delivered to your doorstep in 3–5 business days.
+                <strong>Your car's smart contact tag.</strong> Protect your personal phone number and receive alerts about your car. Delivered to your doorstep in 3–5 business days.
               </p>
 
               {/* Tag Value Highlights */}
@@ -91,7 +91,7 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
                   <h3>Order Confirmed! 🎉</h3>
                   <p className="success-txt">
-                    Thank you <strong>{name}</strong>! Your order for <strong>{quantity}x FindOwner QR Tag</strong> for vehicle <strong>{vehicleNo.toUpperCase()}</strong> has been placed successfully.
+                    Thank you <strong>{name}</strong>! Your order for <strong>{quantity}x CarFrnd Tag</strong> for vehicle <strong>{vehicleNo.toUpperCase()}</strong> has been placed successfully.
                   </p>
                   <div className="tracking-box">
                     <span>Order ID: <code>CF-{Math.floor(100000 + Math.random() * 900000)}</code></span>

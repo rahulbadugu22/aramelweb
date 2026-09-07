@@ -62,15 +62,15 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
-          <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>How FindOwner Works</a>
+          <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>How CarFrnd Tag Works</a>
           <a href="#live-services" onClick={() => setMobileMenuOpen(false)}>Auto Services</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
-              Get Your FindOwner QR Tag — ₹450
+              Get Your CarFrnd Tag — ₹450
             </button>
             <button className="btn-secondary full-w" onClick={() => { setMobileMenuOpen(false); onOpenScanner(); }}>
-              <QrCode size={16} /> Scan a FindOwner QR
+              <QrCode size={16} /> Scan CarFrnd Tag
             </button>
           </div>
         </div>

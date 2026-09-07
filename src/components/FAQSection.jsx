@@ -6,16 +6,16 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      q: 'How does the FindOwner QR Tag protect my personal mobile number?',
-      a: 'When someone scans your FindOwner QR Tag, they can notify you about your car without seeing your personal phone number. Supported contact is handled through secure masked communication, keeping your phone number private.'
+      q: 'How does the CarFrnd Tag protect my personal mobile number?',
+      a: 'When someone scans your CarFrnd Tag, they can notify you about your car without seeing your personal phone number. Supported contact is handled through secure masked communication, keeping your phone number private.'
     },
     {
-      q: 'Does a person scanning my FindOwner QR Tag need to download the CarFrnd app?',
-      a: 'No. Anyone with a smartphone camera can scan your FindOwner QR Tag. It opens a secure web-based contact page in their browser without requiring an app download or sign-up.'
+      q: 'Does a person scanning my CarFrnd Tag need to download the CarFrnd app?',
+      a: 'No. Anyone with a smartphone camera can scan your CarFrnd Tag. It opens a secure web-based contact page in their browser without requiring an app download or sign-up.'
     },
     {
-      q: 'Are there any monthly subscription fees for FindOwner QR Tags?',
-      a: 'No. FindOwner QR Tag is a one-time purchase of ₹450 including GST. There are no recurring monthly or annual subscription fees.'
+      q: 'Are there any monthly subscription fees for CarFrnd Tag?',
+      a: 'No. CarFrnd Tag is a one-time purchase of ₹450 including GST. There are no recurring monthly or annual subscription fees.'
     }
   ];
 
@@ -64,8 +64,8 @@ export default function FAQSection() {
             <Mail size={24} color="#FF2B85" />
           </div>
           <div className="support-text-wrap">
-            <h4>Need help with your FindOwner QR Tag?</h4>
-            <p>Our support team can assist you.</p>
+            <h4>Need help with your CarFrnd Tag?</h4>
+            <p>Our support team can assist you with your car's smart contact tag.</p>
           </div>
           <a href="mailto:support@carfrnd.com" className="btn-primary">
             Email support@carfrnd.com

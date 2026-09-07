@@ -15,7 +15,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
           <div className="glass-pill hero-badge animate-float">
             <span className="badge-dot"></span>
             <Sparkles size={13} />
-            <span>FINDOWNER QR TAG IS NOW LIVE</span>
+            <span>CARFRND TAG IS NOW LIVE</span>
           </div>
 
           <h1 className="hero-title">
@@ -25,7 +25,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
           </h1>
 
           <p className="hero-description">
-            Stay connected about your car without sharing your personal phone number. With <strong>FindOwner QR Tag</strong>, anyone can notify you of blocking, lights left on, or towing alerts through secure masked communication.
+            <strong>CarFrnd Tag</strong> — your car's smart contact tag. Stay connected about your car without sharing your personal phone number. Anyone can notify you of blocking, lights left on, or towing alerts through secure masked communication.
           </p>
 
           {/* Key Value Bullets */}
@@ -53,11 +53,11 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
           <div className="hero-ctas">
             <button className="btn-primary hero-btn-main" onClick={onOpenOrderTag}>
               <Sparkles size={16} />
-              Get Your FindOwner QR Tag — ₹450
+              Get Your CarFrnd Tag — ₹450
             </button>
             <button className="btn-secondary hero-btn-sec" onClick={onOpenScanner}>
               <QrCode size={16} />
-              Scan a FindOwner QR
+              Scan a CarFrnd Tag
             </button>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
             <div className="card-top-bar">
               <div className="brand-pill">
                 <ShieldCheck size={15} color="#FF2B85" />
-                <span>FindOwner QR Tag</span>
+                <span>CarFrnd Tag</span>
               </div>
             </div>
 
@@ -105,8 +105,8 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
             {/* Quick Interactive Scanner Trigger Box */}
             <div className="quick-scan-prompt" onClick={onOpenScanner}>
               <div className="scan-prompt-text">
-                <span className="prompt-title">Scan this QR Tag with your Camera</span>
-                <span className="prompt-sub">Tap to experience FindOwner in real time</span>
+                <span className="prompt-title">Scan this CarFrnd Tag with your Camera</span>
+                <span className="prompt-sub">Scan to contact the car owner privately</span>
               </div>
               <div className="prompt-arrow">
                 <ArrowRight size={15} />

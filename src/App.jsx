@@ -49,7 +49,7 @@ export default function App() {
           onOpenDoorstepWash={() => setDoorstepModalOpen(true)}
         />
 
-        {/* 2. See FindOwner in Action (Live Customer Scanning Flow) */}
+        {/* 2. See CarFrnd Tag in Action (Live Customer Scanning Flow) */}
         <AppShowcaseSection
           onOpenScanner={handleOpenScanner}
           onOpenOrderTag={handleScrollToOrder}

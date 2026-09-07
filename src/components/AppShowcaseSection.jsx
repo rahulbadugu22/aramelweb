@@ -4,7 +4,7 @@ import { Shield, ShieldCheck, QrCode, PhoneCall, AlertTriangle, CheckCircle2, Sp
 export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
   const [scanStep, setScanStep] = useState(1);
 
-  // Auto-cycle through the FindOwner scanning flow
+  // Auto-cycle through the CarFrnd Tag scanning flow
   useEffect(() => {
     const timer = setInterval(() => {
       setScanStep(prev => (prev >= 3 ? 1 : prev + 1));
@@ -24,44 +24,44 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
             </div>
             <div className="showcase-pill">
               <span className="pill-dot"></span>
-              <span>FINDOWNER</span>
+              <span>CARFRND TAG</span>
             </div>
           </div>
-          <h2 className="showcase-title">See FindOwner in Action</h2>
+          <h2 className="showcase-title">See CarFrnd Tag in Action</h2>
           <p className="showcase-subtitle">
-            See how FindOwner keeps you connected while keeping your phone number private.
+            Your car's smart contact tag. See how CarFrnd Tag keeps you connected while keeping your phone number private.
           </p>
         </div>
 
         {/* Showcase Grid: Left Controls & Right Dynamic Phone Mockup */}
         <div className="showcase-main-grid">
-          {/* Left Side: FindOwner Details & Action CTAs */}
+          {/* Left Side: CarFrnd Tag Details & Action CTAs */}
           <div className="showcase-controls-col">
-            {/* FindOwner Single Active Tab Pill */}
+            {/* CarFrnd Tag Single Active Tab Pill */}
             <div className="screen-tabs-bar">
               <button className="screen-tab-btn active" type="button">
                 <Shield size={16} />
-                <span>FindOwner</span>
+                <span>CarFrnd Tag</span>
               </button>
             </div>
 
             {/* Active Info Text */}
             <div className="active-screen-info">
-              <h3 className="info-title">Smart FindOwner QR Protection</h3>
+              <h3 className="info-title">Your Car's Smart Contact Tag</h3>
               <p className="info-desc">
-                Stay connected about your car without sharing your personal phone number. Anyone can scan your FindOwner QR Tag with their phone camera to notify you about your car without seeing your personal phone number.
+                Stay connected about your car without sharing your personal phone number. Anyone can scan your CarFrnd Tag with their phone camera to notify you about your car without seeing your personal phone number.
               </p>
             </div>
 
             {/* Key Value Perks */}
-            <div className="findowner-perks-list">
+            <div className="carfrnd-tag-perks-list">
               <div className="perk-row">
                 <CheckCircle2 size={16} color="#059669" className="perk-icon" />
                 <span>No app download required for the person scanning</span>
               </div>
               <div className="perk-row">
                 <CheckCircle2 size={16} color="#059669" className="perk-icon" />
-                <span>Two-way encrypted masked voice call communication</span>
+                <span>Secure masked voice communication</span>
               </div>
               <div className="perk-row">
                 <CheckCircle2 size={16} color="#059669" className="perk-icon" />
@@ -73,11 +73,11 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
             <div className="showcase-actions-row">
               <button className="btn-primary showcase-cta-main" onClick={onOpenOrderTag}>
                 <Sparkles size={16} />
-                <span>Get Your FindOwner QR Tag — ₹450</span>
+                <span>Get Your CarFrnd Tag — ₹450</span>
               </button>
               <button className="btn-secondary showcase-cta-sec" onClick={onOpenScanner}>
                 <QrCode size={16} />
-                <span>Scan a FindOwner QR</span>
+                <span>Scan a CarFrnd Tag</span>
               </button>
             </div>
           </div>
@@ -89,12 +89,12 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
               <div className="floating-bubble-top animate-float">
                 {scanStep === 1 ? (
                   <>
-                    <span className="bubble-bold">FindOwner QR Tag Scanned</span>
+                    <span className="bubble-bold">CarFrnd Tag Scanned</span>
                     <span className="bubble-sub">Camera Live • Tag Verified</span>
                   </>
                 ) : scanStep === 2 ? (
                   <>
-                    <span className="bubble-bold">FindOwner Alert Sent</span>
+                    <span className="bubble-bold">CarFrnd Tag Alert Sent</span>
                   </>
                 ) : (
                   <>
@@ -123,12 +123,12 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
                     </div>
                   </div>
 
-                  {/* FindOwner Interactive Flow Screen */}
-                  <div className="phone-content-body findowner-screen-view animate-fade-in">
+                  {/* CarFrnd Tag Interactive Flow Screen */}
+                  <div className="phone-content-body carfrnd-tag-screen-view animate-fade-in">
                     <div className="screen-top-bar">
                       <div className="screen-header-badge" style={{ background: 'rgba(255, 43, 133, 0.15)', color: '#FF2B85' }}>
                         <Shield size={12} color="#FF2B85" />
-                        <span>FINDOWNER QR</span>
+                        <span>CARFRND TAG</span>
                       </div>
                     </div>
 
@@ -166,7 +166,7 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
                         <div className="qr-box-centered">
                           <QrCode size={56} color="#FFFFFF" className="mock-qr-icon" />
                         </div>
-                        <span className="scan-radar-txt">Scanning FindOwner QR Tag...</span>
+                        <span className="scan-radar-txt">Scanning CarFrnd Tag...</span>
                         <span className="scan-vnum-detect">Vehicle: MH 01 AB 1234</span>
                       </div>
                     )}
@@ -215,7 +215,7 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
                   <div className="phone-bottom-nav">
                     <div className="p-brand-indicator">
                       <ShieldCheck size={14} color="#FF2B85" />
-                      <span>FindOwner Secure Gateway</span>
+                      <span>CarFrnd Tag Secure Gateway</span>
                     </div>
                   </div>
                 </div>
@@ -345,7 +345,7 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
           max-width: 540px;
         }
 
-        .findowner-perks-list {
+        .carfrnd-tag-perks-list {
           display: flex;
           flex-direction: column;
           gap: 10px;
@@ -756,7 +756,7 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
           .info-desc {
             margin: 0 auto;
           }
-          .findowner-perks-list {
+          .carfrnd-tag-perks-list {
             text-align: left;
           }
           .showcase-actions-row {

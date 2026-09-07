@@ -45,9 +45,9 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
         {/* Viewfinder Header */}
         <div className="sim-header">
           <div className="sim-badge">
-            <span className="dot-red"></span> LIVE FINDOWNER QR SCANNER
+            <span className="dot-red"></span> LIVE CARFRND TAG SCANNER
           </div>
-          <h3>FindOwner App-Free Scanner</h3>
+          <h3>CarFrnd Tag App-Free Scanner</h3>
         </div>
 
         {/* Step 1 & 2: Camera View & Issue Selector */}
@@ -66,7 +66,7 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
                 <QrCode size={36} color="#FF2B85" />
                 <div className="scanned-info">
                   <span className="v-plate">{vehicleNo}</span>
-                  <span className="v-tagid">FindOwner QR Tag Verified</span>
+                  <span className="v-tagid">CarFrnd Tag Verified</span>
                   <span className="v-tagid-sub">Tag ID: KA560100MM1234</span>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function ScanSimulatorModal({ isOpen, onClose }) {
 
               <div className="success-modal-actions">
                 <button className="btn-secondary" onClick={handleReset}>
-                  Scan Another FindOwner QR
+                  Scan Another CarFrnd Tag
                 </button>
                 <button className="btn-primary" onClick={onClose}>
                   Done

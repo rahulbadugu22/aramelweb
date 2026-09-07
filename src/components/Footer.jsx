@@ -12,7 +12,7 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
               <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="footer-logo-img" />
             </a>
             <p className="footer-brand-desc">
-              Privacy-first smart vehicle safety tag system. Helping car owners stay connected while keeping their personal phone number private.
+              Your car's smart contact tag. Helping car owners stay connected while keeping their personal phone number private.
             </p>
             <div className="footer-contact-info">
               <div className="c-item">
@@ -23,13 +23,13 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
             </div>
           </div>
 
-          {/* FindOwner Links */}
+          {/* CarFrnd Tag Links */}
           <div className="footer-col">
-            <h4 className="footer-heading">FindOwner QR</h4>
+            <h4 className="footer-heading">CarFrnd Tag</h4>
             <ul className="footer-links">
-              <li><a href="#app-showcase">How FindOwner Works</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order FindOwner QR Tag (₹450)</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Scan a FindOwner QR</a></li>
+              <li><a href="#app-showcase">How CarFrnd Tag Works</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹450)</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Scan a CarFrnd Tag</a></li>
               <li><a href="#app-showcase">Privacy & Phone Number Protection</a></li>
             </ul>
           </div>

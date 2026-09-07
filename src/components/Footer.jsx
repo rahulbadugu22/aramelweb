@@ -184,6 +184,7 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
           .footer-logo {
             margin-bottom: 20px;
             height: 52px;
+            margin-left: -12px;
           }
           .footer-logo-img {
             height: 56px;

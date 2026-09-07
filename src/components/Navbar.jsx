@@ -297,6 +297,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
             height: 48px;
             min-width: 150px;
             margin-right: 0;
+            margin-left: -12px;
           }
           .brand-logo-img {
             height: 52px;

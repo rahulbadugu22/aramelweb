@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Clock, ShieldAlert, CreditCard, AlertOctagon, Zap, Search, Bell, CheckCircle2, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Clock, ShieldAlert, CreditCard, AlertOctagon, Zap, Search, Bell, CheckCircle2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function ComingSoonServices() {
@@ -8,6 +8,36 @@ export default function ComingSoonServices() {
   const [targetServiceName, setTargetServiceName] = useState('');
   const [userEmail, setUserEmail] = useState('');
 
+  const scrollTrackRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollTrackRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollTrackRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const handleResize = () => checkScroll();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const scroll = (direction) => {
+    if (scrollTrackRef.current) {
+      const cardScrollAmount = 384; // 360px card + 24px gap
+      scrollTrackRef.current.scrollBy({
+        left: direction === 'left' ? -cardScrollAmount : cardScrollAmount,
+        behavior: 'smooth'
+      });
+      setTimeout(checkScroll, 350);
+    }
+  };
+
   const upcomingServices = [
     {
       id: 'rsa-emergency',
@@ -15,7 +45,6 @@ export default function ComingSoonServices() {
       tagline: 'Breakdown & Towing Safety Net',
       desc: 'On-demand 24/7 towing, emergency battery jumpstart, fuel delivery, and highway breakdown support within 30 minutes.',
       icon: ShieldAlert,
-      launchEta: 'Q4 2026',
       image: '/images/service_rsa.jpg',
       highlights: ['30-min Pan-India Dispatch', 'Towing up to 50 km Free', 'Highway Emergency Hotline']
     },
@@ -25,7 +54,6 @@ export default function ComingSoonServices() {
       tagline: 'Zero Commission Digital Renewals',
       desc: 'Instant 1-click motor insurance policy renewal at lowest premium rates plus auto-recharge for your FASTag toll wallet.',
       icon: CreditCard,
-      launchEta: 'Q4 2026',
       image: '/images/service_fastag.jpg',
       highlights: ['Instant Policy Download', 'Lowest Premium Rate Guarantee', 'Auto Toll Balance Sync']
     },
@@ -35,7 +63,6 @@ export default function ComingSoonServices() {
       tagline: 'Instant Violation Alerts',
       desc: 'Get instant WhatsApp & SMS notifications whenever a traffic challan is issued. Pay digitally with zero convenience fee.',
       icon: AlertOctagon,
-      launchEta: 'Q1 2027',
       image: '/images/service_challan.jpg',
       highlights: ['Real-time Violation Alerts', 'Court Lok Adalat Support', 'Zero Platform Convenience Fee']
     },
@@ -45,7 +72,6 @@ export default function ComingSoonServices() {
       tagline: 'Live Station Availability & Booking',
       desc: 'Find nearest compatible EV fast chargers, view live connector availability, and reserve your charging slot ahead of arrival.',
       icon: Zap,
-      launchEta: 'Q1 2027',
       image: '/images/service_ev.jpg',
       highlights: ['Live Connector Status', 'Reserve Slot Before Arrival', 'Universal Payment Pass']
     },
@@ -55,7 +81,6 @@ export default function ComingSoonServices() {
       tagline: 'Unbiased Physical Inspection',
       desc: 'Comprehensive 200+ point physical and OBD-II scanner inspection report by certified engineers before buying any used vehicle.',
       icon: Search,
-      launchEta: 'Q2 2027',
       image: '/images/service_audit.jpg',
       highlights: ['200+ Quality Audit Checks', 'Computerized OBD Scanner Analysis', 'Accident & Flood Damage Check']
     }
@@ -92,75 +117,123 @@ export default function ComingSoonServices() {
   return (
     <section id="coming-soon" className="section-padding coming-soon-section">
       <div className="container">
-        {/* Section Header */}
-        <div className="section-header text-center">
-          <div className="glass-pill">
-            <Clock size={14} />
-            <span>EXPANDING AUTOMOTIVE ECOSYSTEM</span>
+        {/* Section Header with Desktop Navigation Controls */}
+        <div className="coming-section-top">
+          <div className="section-header-content">
+            <div className="glass-pill">
+              <Clock size={14} />
+              <span>EXPANDING AUTOMOTIVE ECOSYSTEM</span>
+            </div>
+            <h2 className="section-title">
+              Coming Soon To <span className="magenta-gradient-text">CarFrnd Ecosystem</span>
+            </h2>
+            <p className="section-subtitle">
+              We are actively expanding our digital car services. Subscribe to get early access and exclusive launch discounts.
+            </p>
           </div>
-          <h2 className="section-title">
-            Coming Soon To <br />
-            <span className="magenta-gradient-text">CarFrnd Ecosystem</span>
-          </h2>
-          <p className="section-subtitle">
-            We are actively expanding our digital car services. Subscribe to get early access and exclusive launch discounts.
-          </p>
+
+          <div className="carousel-controls-desktop">
+            <button
+              type="button"
+              className={`carousel-nav-btn ${!canScrollLeft ? 'disabled' : ''}`}
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+              aria-label="Previous services"
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <button
+              type="button"
+              className={`carousel-nav-btn ${!canScrollRight ? 'disabled' : ''}`}
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+              aria-label="Next services"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </div>
         </div>
 
-        {/* Uniform Sized Cards Grid */}
-        <div className="coming-grid">
-          {upcomingServices.map((item) => {
-            const IconComp = item.icon;
-            const isSubscribed = subscribedIds[item.id];
+        {/* Side Scroll Cards Carousel */}
+        <div className="coming-carousel-wrapper">
+          {canScrollLeft && (
+            <button
+              type="button"
+              className="carousel-side-arrow prev"
+              onClick={() => scroll('left')}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={22} />
+            </button>
+          )}
 
-            return (
-              <div key={item.id} className="coming-card glass-card">
-                <div className="coming-card-media">
-                  <img src={item.image} alt={item.title} className="coming-card-photo" loading="lazy" />
-                  <div className="coming-media-overlay"></div>
-                  <span className="badge-tag badge-soon badge-floating">
-                    {item.launchEta}
-                  </span>
-                  <div className="coming-icon-floating">
-                    <IconComp size={18} color="#FF2B85" />
+          <div
+            className="coming-scroll-track"
+            ref={scrollTrackRef}
+            onScroll={checkScroll}
+          >
+            {upcomingServices.map((item) => {
+              const IconComp = item.icon;
+              const isSubscribed = subscribedIds[item.id];
+
+              return (
+                <div key={item.id} className="coming-card glass-card">
+                  <div className="coming-card-media">
+                    <img src={item.image} alt={item.title} className="coming-card-photo" loading="lazy" />
+                    <div className="coming-media-overlay"></div>
+                    <div className="coming-icon-floating">
+                      <IconComp size={18} color="#FF2B85" />
+                    </div>
+                  </div>
+
+                  <div className="coming-card-body">
+                    <h3 className="coming-title">{item.title}</h3>
+                    <span className="coming-tagline">{item.tagline}</span>
+                    <p className="coming-desc">{item.desc}</p>
+
+                    <div className="coming-highlights-list">
+                      {item.highlights.map((h, i) => (
+                        <div key={i} className="h-pill-row">
+                          <span className="h-dot"></span>
+                          <span>{h}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="coming-card-footer">
+                      <button
+                        className={`btn-notify ${isSubscribed ? 'subscribed' : ''}`}
+                        onClick={() => handleNotifyClick(item)}
+                      >
+                        {isSubscribed ? (
+                          <>
+                            <CheckCircle2 size={16} color="#059669" />
+                            <span>Subscribed!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Bell size={16} />
+                            <span>Notify Me on Launch</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                <div className="coming-card-body">
-                  <h3 className="coming-title">{item.title}</h3>
-                  <span className="coming-tagline">{item.tagline}</span>
-                  <p className="coming-desc">{item.desc}</p>
-
-                  <div className="coming-highlights-list">
-                    {item.highlights.map((h, i) => (
-                      <span key={i} className="h-pill">
-                        • {h}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="coming-card-footer">
-                    <button
-                      className={`btn-notify ${isSubscribed ? 'subscribed' : ''}`}
-                      onClick={() => handleNotifyClick(item)}
-                    >
-                      {isSubscribed ? (
-                        <>
-                          <CheckCircle2 size={16} color="#059669" />
-                          <span>Subscribed!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Bell size={16} />
-                          <span>Notify Me on Launch</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {canScrollRight && (
+            <button
+              type="button"
+              className="carousel-side-arrow next"
+              onClick={() => scroll('right')}
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={22} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -208,28 +281,146 @@ export default function ComingSoonServices() {
       <style>{`
         .coming-soon-section {
           background: #FFFFFF;
-          padding: 44px 0 24px 0;
+          padding: 48px 0 36px 0;
           border-top: 1px solid #E2E8F0;
         }
 
-        .coming-soon-section .section-header {
-          margin-bottom: 24px;
+        .coming-section-top {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          margin-bottom: 28px;
+          gap: 20px;
         }
 
-        .coming-soon-section .section-subtitle {
+        .section-header-content {
+          max-width: 880px;
+        }
+
+        .coming-section-top .section-title {
+          margin-bottom: 10px;
+          line-height: 1.25;
+          white-space: nowrap;
+        }
+
+        .coming-section-top .section-subtitle {
           margin-bottom: 0;
-          max-width: 660px;
+          max-width: 680px;
         }
 
-        .coming-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
+        .carousel-controls-desktop {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
+          margin-bottom: 6px;
+        }
+
+        .carousel-nav-btn {
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          background: #FFFFFF;
+          border: 1.5px solid #E2E8F0;
+          color: #0F172A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        }
+
+        .carousel-nav-btn:hover:not(.disabled) {
+          background: var(--magenta);
+          border-color: var(--magenta);
+          color: #FFFFFF;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(255, 43, 133, 0.35);
+        }
+
+        .carousel-nav-btn.disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+          background: #F8FAFC;
+          border-color: #E2E8F0;
+        }
+
+        .coming-carousel-wrapper {
+          position: relative;
+          width: 100%;
+        }
+
+        .carousel-side-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.96);
+          backdrop-filter: blur(8px);
+          border: 1.5px solid #E2E8F0;
+          color: #0F172A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 12;
+          box-shadow: 0 6px 22px rgba(15, 23, 42, 0.16);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .carousel-side-arrow.prev {
+          left: -20px;
+        }
+
+        .carousel-side-arrow.next {
+          right: -20px;
+        }
+
+        .carousel-side-arrow:hover {
+          background: var(--magenta);
+          border-color: var(--magenta);
+          color: #FFFFFF;
+          transform: translateY(-50%) scale(1.08);
+          box-shadow: 0 8px 25px rgba(255, 43, 133, 0.4);
+        }
+
+        .coming-scroll-track {
+          display: flex;
           gap: 24px;
-          align-items: stretch;
-          margin-top: 24px;
+          overflow-x: auto;
+          scroll-behavior: smooth;
+          scroll-snap-type: x mandatory;
+          padding: 10px 4px 28px 4px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: #CBD5E1 transparent;
+        }
+
+        .coming-scroll-track::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .coming-scroll-track::-webkit-scrollbar-track {
+          background: #F1F5F9;
+          border-radius: 999px;
+        }
+
+        .coming-scroll-track::-webkit-scrollbar-thumb {
+          background: #CBD5E1;
+          border-radius: 999px;
+          transition: background 0.2s;
+        }
+
+        .coming-scroll-track::-webkit-scrollbar-thumb:hover {
+          background: var(--magenta);
         }
 
         .coming-card {
+          flex: 0 0 360px;
+          scroll-snap-align: start;
           padding: 0;
           overflow: hidden;
           display: flex;
@@ -237,9 +428,8 @@ export default function ComingSoonServices() {
           background: #FFFFFF;
           border: 1px solid #E2E8F0;
           border-radius: 20px;
-          height: 100%;
           box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .coming-card:hover {
@@ -251,7 +441,7 @@ export default function ComingSoonServices() {
         .coming-card-media {
           position: relative;
           width: 100%;
-          height: 175px;
+          height: 180px;
           overflow: hidden;
           background: #0F172A;
         }
@@ -271,22 +461,15 @@ export default function ComingSoonServices() {
         .coming-media-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.45) 100%);
-        }
-
-        .badge-floating {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.45) 100%);
         }
 
         .coming-icon-floating {
           position: absolute;
-          bottom: 12px;
-          left: 14px;
-          width: 36px;
-          height: 36px;
+          bottom: 14px;
+          left: 16px;
+          width: 38px;
+          height: 38px;
           border-radius: 10px;
           background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(8px);
@@ -305,44 +488,57 @@ export default function ComingSoonServices() {
         }
 
         .coming-title {
-          font-size: 1.25rem;
+          font-size: 1.22rem;
           font-weight: 800;
           color: #0F172A;
           margin-bottom: 4px;
-          min-height: 30px;
+          min-height: 48px;
+          line-height: 1.3;
         }
 
         .coming-tagline {
           font-size: 0.8rem;
           color: var(--magenta);
           font-weight: 700;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           display: block;
         }
 
         .coming-desc {
-          font-size: 0.9rem;
+          font-size: 0.88rem;
           color: #64748B;
-          line-height: 1.55;
-          margin-bottom: 20px;
-          min-height: 60px;
+          line-height: 1.5;
+          margin-bottom: 18px;
+          min-height: 64px;
         }
 
         .coming-highlights-list {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          margin-bottom: 24px;
+          gap: 8px;
+          margin-bottom: 22px;
         }
 
-        .h-pill {
-          font-size: 0.8rem;
+        .h-pill-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.82rem;
           color: #334155;
           font-weight: 600;
         }
 
+        .h-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--magenta);
+          flex-shrink: 0;
+        }
+
         .coming-card-footer {
           margin-top: auto;
+          padding-top: 10px;
         }
 
         .btn-notify {
@@ -408,15 +604,22 @@ export default function ComingSoonServices() {
         }
 
         @media (max-width: 992px) {
-          .coming-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
+          .coming-section-top {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .coming-section-top .section-title {
+            white-space: normal;
+            font-size: 1.85rem;
+          }
+          .carousel-controls-desktop {
+            display: none;
+          }
+          .carousel-side-arrow {
+            display: none;
           }
           .coming-card {
-            padding: 20px 16px;
-          }
-          .section-title {
-            font-size: 1.85rem;
+            flex: 0 0 295px;
           }
         }
       `}</style>

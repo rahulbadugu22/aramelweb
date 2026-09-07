@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Truck, Lock, Car } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Sparkles, ShieldCheck, Truck, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function OrderTagSection({ onOpenScanner }) {
-  const [styleTheme, setStyleTheme] = useState('Magenta Stealth');
   const [quantity, setQuantity] = useState(1);
   const [vehicleNo, setVehicleNo] = useState('');
   const [name, setName] = useState('');
@@ -17,8 +15,8 @@ export default function OrderTagSection({ onOpenScanner }) {
 
   const handleOrderSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim() || !address.trim()) {
-      alert('Please fill out all address and contact details!');
+    if (!name.trim() || !phone.trim() || !vehicleNo.trim() || !address.trim()) {
+      alert('Please fill out all mandatory details including Vehicle Number!');
       return;
     }
     setOrderConfirmed(true);
@@ -34,7 +32,7 @@ export default function OrderTagSection({ onOpenScanner }) {
       <div className="container">
         <div className="order-box glass-card">
           <div className="order-grid">
-            {/* Left Side Decal Preview & Customizer */}
+            {/* Left Side Product Details & Key Benefits */}
             <div className="order-preview-col">
               <div className="glass-pill">
                 <Sparkles size={13} />
@@ -50,41 +48,35 @@ export default function OrderTagSection({ onOpenScanner }) {
                 Protect your personal phone number and receive alerts about your car. Delivered to your doorstep in 3–5 business days.
               </p>
 
-              {/* Decal Style Selection */}
-              <div className="style-selector-box">
-                <span className="picker-lbl">SELECT TAG DESIGN:</span>
-                <div className="style-options">
-                  {['Magenta Stealth', 'Cyber Carbon', 'Minimalist White'].map((st) => (
-                    <button
-                      key={st}
-                      className={`style-chip ${styleTheme === st ? 'active' : ''}`}
-                      onClick={() => setStyleTheme(st)}
-                    >
-                      {st}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Visual Preview Graphic based on style */}
-              <div className={`decal-visual-preview ${styleTheme.toLowerCase().replace(' ', '-')}`}>
-                <div className="preview-header">
-                  <span className="p-brand">FindOwner QR Tag</span>
-                </div>
-                <div className="preview-qr-row">
-                  <div className="preview-qr-box">
-                    <QRCodeSVG
-                      value={`https://carfrnd.com/scan?tag=KA560100MM1234&v=${encodeURIComponent(vehicleNo.trim() || 'MH01AB1234')}`}
-                      size={76}
-                      level="M"
-                      fgColor="#0F172A"
-                      bgColor="#FFFFFF"
-                    />
+              {/* Tag Value Highlights */}
+              <div className="order-features-list">
+                <div className="order-feature-item">
+                  <div className="feat-icon-box">
+                    <ShieldCheck size={20} color="#FF2B85" />
                   </div>
-                  <div className="preview-meta">
-                    <span className="p-vnum">{vehicleNo ? vehicleNo.toUpperCase() : 'YOUR CAR NO.'}</span>
-                    <span className="p-tagid">SCAN TO CONTACT OWNER</span>
-                    <span className="p-sec">Phone Number Stays Private</span>
+                  <div className="feat-content">
+                    <h4>100% Privacy Protection</h4>
+                    <p>Callers reach you via masked phone forwarding. Your personal mobile number is never exposed.</p>
+                  </div>
+                </div>
+
+                <div className="order-feature-item">
+                  <div className="feat-icon-box">
+                    <Sparkles size={20} color="#FF2B85" />
+                  </div>
+                  <div className="feat-content">
+                    <h4>Weatherproof Industrial Decal</h4>
+                    <p>Sun, scratch, and pressure-wash resistant premium vinyl engineered for automotive windshields.</p>
+                  </div>
+                </div>
+
+                <div className="order-feature-item">
+                  <div className="feat-icon-box">
+                    <Truck size={20} color="#FF2B85" />
+                  </div>
+                  <div className="feat-content">
+                    <h4>Pan-India Doorstep Dispatch</h4>
+                    <p>Free express delivery with tracking right to your doorstep within 3–5 business days.</p>
                   </div>
                 </div>
               </div>
@@ -99,7 +91,7 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
                   <h3>Order Confirmed! 🎉</h3>
                   <p className="success-txt">
-                    Thank you <strong>{name}</strong>! Your <strong>{quantity}x FindOwner QR Tag ({styleTheme})</strong> order has been placed successfully.
+                    Thank you <strong>{name}</strong>! Your order for <strong>{quantity}x FindOwner QR Tag</strong> for vehicle <strong>{vehicleNo.toUpperCase()}</strong> has been placed successfully.
                   </p>
                   <div className="tracking-box">
                     <span>Order ID: <code>CF-{Math.floor(100000 + Math.random() * 900000)}</code></span>
@@ -136,12 +128,15 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
 
                   <div className="form-group">
-                    <label>Vehicle Number (Optional — For Pre-Printing)</label>
+                    <label>
+                      Vehicle Number <span className="req-star">*</span>
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. MH 01 AB 1234"
                       value={vehicleNo}
-                      onChange={(e) => setVehicleNo(e.target.value)}
+                      onChange={(e) => setVehicleNo(e.target.value.toUpperCase())}
+                      required
                     />
                   </div>
 
@@ -156,28 +151,44 @@ export default function OrderTagSection({ onOpenScanner }) {
                     />
                   </div>
 
-                  {/* Quantity & Total Price Bar */}
-                  <div className="qty-price-row">
-                    <div className="qty-picker">
-                      <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-                      <span>{quantity}</span>
-                      <button type="button" onClick={() => setQuantity(quantity + 1)}>+</button>
+                  {/* Quantity & Total Price Section */}
+                  <div className="checkout-pricing-card">
+                    <div className="pricing-main-row">
+                      <div className="qty-control-wrapper">
+                        <span className="qty-label">Qty:</span>
+                        <div className="qty-picker">
+                          <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">−</button>
+                          <span className="qty-val">{quantity}</span>
+                          <button type="button" onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button>
+                        </div>
+                      </div>
+
+                      <div className="price-stack">
+                        <span className="strike-price">₹{799 * quantity}</span>
+                        <span className="total-price">₹{totalPrice}</span>
+                      </div>
                     </div>
 
-                    <div className="price-summary-right">
-                      <span className="strike-price">₹{799 * quantity}</span>
-                      <span className="total-price">₹{totalPrice}</span>
-                      <span className="ship-free">FREE SHIPPING • INCL. GST</span>
+                    <div className="shipping-benefit-tag">
+                      <span className="green-dot"></span>
+                      <span>FREE PAN-INDIA DELIVERY • INCL. GST</span>
                     </div>
                   </div>
 
-                  <button type="submit" className="btn-primary full-w">
-                    <Lock size={15} /> Pay ₹{totalPrice} & Place Order
+                  <button type="submit" className="btn-primary full-w order-submit-btn">
+                    <Lock size={16} /> Pay ₹{totalPrice} & Place Order
                   </button>
 
                   <div className="trust-footer-row">
-                    <div className="t-item"><Truck size={13} /> 3–5 Business Days Delivery</div>
-                    <div className="t-item"><ShieldCheck size={13} /> Phone Number Stays Private</div>
+                    <div className="t-item">
+                      <Truck size={14} color="#FF2B85" />
+                      <span>3–5 Days Free Delivery</span>
+                    </div>
+                    <span className="t-sep">•</span>
+                    <div className="t-item">
+                      <ShieldCheck size={14} color="#FF2B85" />
+                      <span>100% Number Privacy</span>
+                    </div>
                   </div>
                 </form>
               )}
@@ -223,150 +234,59 @@ export default function OrderTagSection({ onOpenScanner }) {
           line-height: 1.55;
         }
 
-        .style-selector-box {
-          margin-bottom: 20px;
-        }
-
-        .picker-lbl {
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: var(--magenta);
-          letter-spacing: 0.05em;
-          display: block;
-          margin-bottom: 8px;
-        }
-
-        .style-options {
+        .order-features-list {
           display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
+          flex-direction: column;
+          gap: 14px;
+          margin-top: 24px;
         }
 
-        .style-chip {
-          background: #F1F5F9;
-          border: 1px solid #CBD5E1;
-          color: #475569;
-          font-family: var(--font-heading);
-          font-weight: 700;
-          font-size: 0.82rem;
-          padding: 7px 14px;
-          border-radius: 8px;
-          cursor: pointer;
+        .order-feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          padding: 14px 16px;
+          background: #F8FAFC;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
           transition: all 0.2s ease;
         }
 
-        .style-chip:hover, .style-chip.active {
-          background: var(--magenta);
-          border-color: var(--magenta);
-          color: #FFFFFF;
-          box-shadow: 0 4px 12px rgba(255, 43, 133, 0.25);
+        .order-feature-item:hover {
+          background: #FFF1F7;
+          border-color: rgba(255, 43, 133, 0.3);
         }
 
-        .decal-visual-preview {
-          border-radius: 16px;
-          padding: 20px;
-          position: relative;
-          box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
-          transition: all 0.3s ease;
-        }
-
-        .decal-visual-preview.magenta-stealth {
-          background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-          border: 2px solid var(--magenta);
-        }
-
-        .decal-visual-preview.cyber-carbon {
-          background: radial-gradient(circle, #334155 0%, #0F172A 100%);
-          border: 2px solid #94A3B8;
-        }
-
-        .decal-visual-preview.minimalist-white {
-          background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%);
-          border: 2px solid #CBD5E1;
-        }
-
-        .decal-visual-preview.minimalist-white * {
-          color: #0F172A !important;
-        }
-
-        .preview-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 14px;
-        }
-
-        .p-brand {
-          font-family: var(--font-heading);
-          font-weight: 900;
-          font-size: 0.86rem;
-          color: #FFFFFF;
-        }
-
-        .p-badge {
-          font-size: 0.62rem;
-          font-weight: 800;
-          color: #FFFFFF;
-          background: var(--magenta);
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-
-        .preview-qr-row {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-
-        .preview-qr-box {
-          background: #FFFFFF;
-          padding: 8px;
+        .feat-icon-box {
+          width: 40px;
+          height: 40px;
           border-radius: 10px;
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .preview-qr-img {
-          color: #000000;
-        }
-
-        .preview-center-icon {
-          position: absolute;
-          width: 22px;
-          height: 22px;
           background: #FFFFFF;
-          border-radius: 50%;
-          border: 1.5px solid var(--magenta);
+          border: 1px solid #FBCFE8;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 2px 6px rgba(255, 43, 133, 0.08);
         }
 
-        .preview-meta {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .p-vnum {
-          font-family: var(--font-heading);
-          font-size: 1.15rem;
-          font-weight: 900;
-          color: #FFFFFF;
-        }
-
-        .p-tagid {
-          font-size: 0.72rem;
+        .feat-content h4 {
+          font-size: 0.94rem;
           font-weight: 800;
-          color: #FF73B3;
+          color: #0F172A;
+          margin: 0 0 3px 0;
         }
 
-        .p-sec {
-          font-size: 0.68rem;
-          color: #34D399;
-          font-weight: 600;
+        .feat-content p {
+          font-size: 0.82rem;
+          color: #64748B;
+          margin: 0;
+          line-height: 1.45;
+        }
+
+        .req-star {
+          color: var(--magenta);
+          font-weight: 800;
         }
 
         /* Order Form */
@@ -410,23 +330,43 @@ export default function OrderTagSection({ onOpenScanner }) {
           border-color: var(--magenta);
         }
 
-        .qty-price-row {
+        .checkout-pricing-card {
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 12px 14px;
+          margin: 6px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .pricing-main-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px 0;
-          border-top: 1px dashed #CBD5E1;
-          border-bottom: 1px dashed #CBD5E1;
-          margin: 4px 0;
+          gap: 12px;
+        }
+
+        .qty-control-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .qty-label {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #64748B;
         }
 
         .qty-picker {
           display: flex;
           align-items: center;
-          gap: 10px;
-          background: #FFFFFF;
+          gap: 8px;
+          background: #F8FAFC;
           border: 1px solid #CBD5E1;
-          border-radius: 6px;
+          border-radius: 8px;
           padding: 3px 8px;
         }
 
@@ -434,58 +374,108 @@ export default function OrderTagSection({ onOpenScanner }) {
           background: none;
           border: none;
           color: var(--magenta);
-          font-size: 1.1rem;
+          font-size: 1.15rem;
           font-weight: 800;
           cursor: pointer;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          transition: background 0.15s;
         }
 
-        .qty-picker span {
+        .qty-picker button:hover {
+          background: #FCE7F3;
+        }
+
+        .qty-val {
           font-weight: 800;
           color: #0F172A;
           font-size: 0.95rem;
+          min-width: 16px;
+          text-align: center;
         }
 
-        .price-summary-right {
+        .price-stack {
           display: flex;
-          align-items: center;
+          align-items: baseline;
           gap: 8px;
         }
 
         .strike-price {
-          font-size: 0.85rem;
+          font-size: 0.86rem;
           color: #94A3B8;
           text-decoration: line-through;
         }
 
         .total-price {
           font-family: var(--font-heading);
-          font-size: 1.35rem;
+          font-size: 1.4rem;
           font-weight: 900;
           color: #0F172A;
         }
 
-        .ship-free {
-          font-size: 0.62rem;
-          font-weight: 800;
-          color: #059669;
+        .shipping-benefit-tag {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
           background: #ECFDF5;
-          padding: 2px 5px;
-          border-radius: 4px;
+          border: 1px solid #D1FAE5;
+          color: #059669;
+          font-size: 0.7rem;
+          font-weight: 800;
+          letter-spacing: 0.03em;
+          padding: 5px 10px;
+          border-radius: 6px;
+          text-align: center;
+        }
+
+        .green-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #10B981;
+          flex-shrink: 0;
+        }
+
+        .order-submit-btn {
+          margin-top: 4px;
+          font-size: 1rem;
+          padding: 14px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-weight: 800;
+          box-shadow: 0 4px 16px rgba(255, 43, 133, 0.35);
         }
 
         .trust-footer-row {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          font-size: 0.75rem;
+          justify-content: center;
+          gap: 10px;
+          font-size: 0.76rem;
           color: #64748B;
-          margin-top: 2px;
+          margin-top: 8px;
+          flex-wrap: wrap;
+          text-align: center;
         }
 
         .t-item {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
+          white-space: nowrap;
+          font-weight: 600;
+        }
+
+        .t-sep {
+          color: #CBD5E1;
         }
 
         .order-success-card {
@@ -512,20 +502,76 @@ export default function OrderTagSection({ onOpenScanner }) {
 
         @media (max-width: 900px) {
           section.order-section {
-            padding-bottom: 12px;
+            background: #FFFFFF;
+            padding-top: 24px;
+            padding-bottom: 48px;
+          }
+          .order-box {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+          }
+          .order-box:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: transparent !important;
           }
           .order-grid {
             grid-template-columns: 1fr;
-            gap: 22px;
-          }
-          .order-box {
-            padding: 20px 14px;
+            gap: 28px;
           }
           .order-title {
-            font-size: 1.8rem;
+            font-size: 1.85rem;
+            margin-top: 10px;
           }
           .order-checkout-form {
-            padding: 16px 12px;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            gap: 16px;
+          }
+          .order-checkout-form input,
+          .order-checkout-form textarea {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.92rem;
+          }
+          .order-checkout-form input:focus,
+          .order-checkout-form textarea:focus {
+            background: #FFFFFF;
+            border-color: var(--magenta);
+            box-shadow: 0 0 0 3px rgba(255, 43, 133, 0.12);
+          }
+          .checkout-pricing-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 14px;
+            margin: 6px 0;
+          }
+          .qty-picker {
+            background: #FFFFFF;
+          }
+          .trust-footer-row {
+            gap: 8px;
+            font-size: 0.74rem;
+            margin-top: 10px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .trust-footer-row {
+            flex-direction: column;
+            gap: 4px;
+          }
+          .t-sep {
+            display: none;
           }
         }
       `}</style>

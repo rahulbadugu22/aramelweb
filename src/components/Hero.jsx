@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldCheck, QrCode, Sparkles, ArrowRight, PhoneOff, CheckCircle2, Car } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
-export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash }) {
+export default function Hero({ onOpenOrderTag, onOpenDoorstepWash }) {
   return (
     <section className="hero-section">
       <div className="hero-bg-image"></div>
@@ -55,10 +55,9 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
               <Sparkles size={16} />
               Get Your CarFrnd Tag — ₹450
             </button>
-            <button className="btn-secondary hero-btn-sec" onClick={onOpenScanner}>
-              <QrCode size={16} />
-              Scan a CarFrnd Tag
-            </button>
+            <a href="#app-showcase" className="btn-secondary hero-btn-sec">
+              How It Works
+            </a>
           </div>
         </div>
 
@@ -102,14 +101,11 @@ export default function Hero({ onOpenScanner, onOpenOrderTag, onOpenDoorstepWash
               </div>
             </div>
 
-            {/* Quick Interactive Scanner Trigger Box */}
-            <div className="quick-scan-prompt" onClick={onOpenScanner}>
+            {/* Camera Scan Info Box */}
+            <div className="quick-scan-prompt" style={{ cursor: 'default' }}>
               <div className="scan-prompt-text">
                 <span className="prompt-title">Scan this CarFrnd Tag with your Camera</span>
                 <span className="prompt-sub">Scan to contact the car owner privately</span>
-              </div>
-              <div className="prompt-arrow">
-                <ArrowRight size={15} />
               </div>
             </div>
           </div>

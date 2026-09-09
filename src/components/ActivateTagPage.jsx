@@ -3,7 +3,7 @@ import { ArrowLeft, Sparkles, QrCode, ShieldCheck, Car, PhoneCall, AlertTriangle
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 
-export default function ActivateTagPage({ onNavigate, onOpenScanner }) {
+export default function ActivateTagPage({ onNavigate }) {
   const [step, setStep] = useState(1);
   const [tagId, setTagId] = useState('KA560100MM1234');
   const [vehicleNo, setVehicleNo] = useState('MH 01 AB 1234');
@@ -117,13 +117,6 @@ export default function ActivateTagPage({ onNavigate, onOpenScanner }) {
                     required
                   />
                   <span className="input-hint">Default demo code entered. You can customize or leave as is.</span>
-                </div>
-
-                <div className="scan-shortcut-box">
-                  <span>Have your tag decal handy?</span>
-                  <button type="button" className="btn-secondary scan-btn-mini" onClick={onOpenScanner}>
-                    <QrCode size={15} /> Scan Tag with Camera
-                  </button>
                 </div>
 
                 <button type="submit" className="btn-primary full-w next-btn">
@@ -373,10 +366,7 @@ export default function ActivateTagPage({ onNavigate, onOpenScanner }) {
 
               {/* Action CTAs */}
               <div className="success-actions-row">
-                <button className="btn-primary" onClick={onOpenScanner}>
-                  <Eye size={16} /> Test Scan Simulator
-                </button>
-                <button className="btn-secondary" onClick={() => onNavigate('home')}>
+                <button className="btn-primary full-w" onClick={() => onNavigate('home')}>
                   Return to Home
                 </button>
               </div>

@@ -6,7 +6,6 @@ import LiveServices from './components/LiveServices';
 import OrderTagSection from './components/OrderTagSection';
 import FAQSection from './components/FAQSection';
 import Footer from './components/Footer';
-import ScanSimulatorModal from './components/ScanSimulatorModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import DoorstepWashModal from './components/DoorstepWashModal';
 import AccountModal from './components/AccountModal';
@@ -15,45 +14,49 @@ import TrackOrderPage from './components/TrackOrderPage';
 import ActivateTagPage from './components/ActivateTagPage';
 
 export default function App() {
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [doorstepModalOpen, setDoorstepModalOpen] = useState(false);
   const [accountModalOpen, setAccountModalOpen] = useState(false);
 
-  // Initialize view from URL hash or default to 'home'
-  const getInitialView = () => {
+  // Initialize view from URL pathname or hash, default to 'home'
+  const getViewFromLocation = () => {
+    const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
-    if (hash.includes('bill') || hash.includes('invoice')) return 'bill';
-    if (hash.includes('track')) return 'track-order';
-    if (hash.includes('activate')) return 'activate-tag';
+    const combined = path + ' ' + hash;
+    if (combined.includes('bill') || combined.includes('invoice')) return 'bill';
+    if (combined.includes('track')) return 'track-order';
+    if (combined.includes('activate')) return 'activate-tag';
     return 'home';
   };
 
-  const [currentView, setCurrentView] = useState(getInitialView());
+  const [currentView, setCurrentView] = useState(getViewFromLocation());
   const [activeOrder, setActiveOrder] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState('CF-842918');
 
-  // Handle hash change for browser back/forward and direct links
+  // Handle browser back/forward and clean up any leftover hash
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.includes('bill') || hash.includes('invoice')) {
-        setCurrentView('bill');
-      } else if (hash.includes('track')) {
-        setCurrentView('track-order');
-      } else if (hash.includes('activate')) {
-        setCurrentView('activate-tag');
-      } else {
-        setCurrentView('home');
-      }
+    // If URL has #/ or #, clean it up immediately
+    if (window.location.hash === '#/' || window.location.hash === '#') {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    const handleLocationChange = () => {
+      setCurrentView(getViewFromLocation());
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   const handleNavigate = (view, extraData) => {
     setCurrentView(view);
+    let targetPath = '/';
+
     if (view === 'bill') {
-      window.location.hash = '/bill';
+      targetPath = '/bill';
       if (extraData) {
         if (typeof extraData === 'object') {
           setActiveOrder(extraData);
@@ -63,25 +66,22 @@ export default function App() {
         }
       }
     } else if (view === 'track-order') {
-      window.location.hash = '/track-order';
+      targetPath = '/track-order';
       if (extraData) {
         const id = typeof extraData === 'string' ? extraData : extraData.orderId;
         setActiveOrderId(id);
       }
     } else if (view === 'activate-tag') {
-      window.location.hash = '/activate-tag';
+      targetPath = '/activate-tag';
     } else {
-      window.location.hash = '/';
+      targetPath = '/';
+    }
+
+    // Use clean pushState without ugly hashes
+    if (window.location.pathname !== targetPath || window.location.hash) {
+      window.history.pushState(null, '', targetPath);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleOpenScanner = () => {
-    setScannerOpen(true);
-  };
-
-  const handleCloseScanner = () => {
-    setScannerOpen(false);
   };
 
   const handleScrollToOrder = () => {
@@ -103,7 +103,6 @@ export default function App() {
     <div className="carfrnd-app-root">
       {/* Navigation Bar */}
       <Navbar
-        onOpenScanner={handleOpenScanner}
         onOpenOrderTag={handleScrollToOrder}
         onOpenAccount={() => setAccountModalOpen(true)}
         onNavigate={handleNavigate}
@@ -116,31 +115,26 @@ export default function App() {
           <BillPage
             activeOrder={activeOrder}
             onNavigate={handleNavigate}
-            onOpenScanner={handleOpenScanner}
           />
         ) : currentView === 'track-order' ? (
           <TrackOrderPage
             initialOrderId={activeOrderId}
             onNavigate={handleNavigate}
-            onOpenScanner={handleOpenScanner}
           />
         ) : currentView === 'activate-tag' ? (
           <ActivateTagPage
             onNavigate={handleNavigate}
-            onOpenScanner={handleOpenScanner}
           />
         ) : (
           <>
             {/* 1. Hero Section */}
             <Hero
-              onOpenScanner={handleOpenScanner}
               onOpenOrderTag={handleScrollToOrder}
               onOpenDoorstepWash={() => setDoorstepModalOpen(true)}
             />
 
             {/* 2. See CarFrnd Tag in Action */}
             <AppShowcaseSection
-              onOpenScanner={handleOpenScanner}
               onOpenOrderTag={handleScrollToOrder}
             />
 
@@ -151,7 +145,6 @@ export default function App() {
 
             {/* 4. Order Tag Section */}
             <OrderTagSection
-              onOpenScanner={handleOpenScanner}
               onOpenBill={(order) => handleNavigate('bill', order)}
               onOpenTrackOrder={(orderId) => handleNavigate('track-order', orderId)}
             />
@@ -164,24 +157,16 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        onOpenScanner={handleOpenScanner}
         onOpenOrderTag={handleScrollToOrder}
         onNavigate={handleNavigate}
       />
 
       {/* Mobile Sticky Bottom Navigation Bar */}
       <MobileBottomNav
-        onOpenScanner={handleOpenScanner}
         onOpenOrderTag={handleScrollToOrder}
         onOpenAccount={() => setAccountModalOpen(true)}
         onNavigate={handleNavigate}
         currentView={currentView}
-      />
-
-      {/* Global Interactive QR Scanner Modal */}
-      <ScanSimulatorModal
-        isOpen={scannerOpen}
-        onClose={handleCloseScanner}
       />
 
       {/* Doorstep Car Wash Coming Soon Modal */}

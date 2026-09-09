@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, ShieldCheck, Truck, Lock, Receipt } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function OrderTagSection({ onOpenScanner, onOpenBill, onOpenTrackOrder }) {
+export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
   const [quantity, setQuantity] = useState(1);
   const [vehicleNo, setVehicleNo] = useState('');
   const [name, setName] = useState('');

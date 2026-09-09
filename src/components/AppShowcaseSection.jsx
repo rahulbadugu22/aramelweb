@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, ShieldCheck, QrCode, PhoneCall, AlertTriangle, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
-export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
+export default function AppShowcaseSection({ onOpenOrderTag }) {
   const [scanStep, setScanStep] = useState(1);
 
   // Auto-cycle through the CarFrnd Tag scanning flow
@@ -74,10 +74,6 @@ export default function AppShowcaseSection({ onOpenScanner, onOpenOrderTag }) {
               <button className="btn-primary showcase-cta-main" onClick={onOpenOrderTag}>
                 <Sparkles size={16} />
                 <span>Get Your CarFrnd Tag — ₹450</span>
-              </button>
-              <button className="btn-secondary showcase-cta-sec" onClick={onOpenScanner}>
-                <QrCode size={16} />
-                <span>Scan a CarFrnd Tag</span>
               </button>
             </div>
           </div>

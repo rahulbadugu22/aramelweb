@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Home, QrCode, ShoppingBag } from 'lucide-react';
+import { Home, ShoppingBag, Truck, User } from 'lucide-react';
 
-export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag, onNavigate, currentView }) {
+export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
   const [scrollTab, setScrollTab] = useState('home');
 
   useEffect(() => {
@@ -52,30 +52,47 @@ export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag, onNavig
           className={`nav-tab-item ${activeTab === 'home' ? 'active' : ''}`}
           onClick={() => scrollToSection('home', 'home')}
         >
-          <Home size={22} />
+          <Home size={20} />
           <span>Home</span>
         </button>
 
-        {/* Center Prominent Scan QR Floating Button */}
-        <div className="center-fab-wrapper">
-          <button className="center-fab-btn" onClick={onOpenScanner} aria-label="Scan Tag">
-            <QrCode size={24} color="#FFFFFF" />
-            <span className="fab-pulse-ring"></span>
-          </button>
-          <span className="center-fab-label">Scan QR</span>
-          <span className="fab-badge">LIVE</span>
-        </div>
-
-        {/* Get Tag Tab */}
+        {/* Track Order Tab */}
         <button
-          className={`nav-tab-item ${activeTab === 'order' ? 'active' : ''}`}
+          className={`nav-tab-item ${currentView === 'track-order' ? 'active' : ''}`}
           onClick={() => {
-            scrollToSection('order-tag', 'order');
-            if (onOpenOrderTag) onOpenOrderTag();
+            if (onNavigate) onNavigate('track-order');
           }}
         >
-          <ShoppingBag size={22} />
-          <span>Get Tag</span>
+          <Truck size={20} />
+          <span>Track Order</span>
+        </button>
+
+        {/* Center Prominent Get Tag Floating Button */}
+        <div className="center-fab-wrapper">
+          <button
+            className="center-fab-btn"
+            onClick={() => {
+              scrollToSection('order-tag', 'order');
+              if (onOpenOrderTag) onOpenOrderTag();
+            }}
+            aria-label="Get CarFrnd Tag"
+          >
+            <ShoppingBag size={22} color="#FFFFFF" />
+            <span className="fab-pulse-ring"></span>
+          </button>
+          <span className="center-fab-label">₹450</span>
+          <span className="fab-badge">BUY</span>
+        </div>
+
+        {/* Account Tab */}
+        <button
+          className="nav-tab-item"
+          onClick={() => {
+            if (onOpenAccount) onOpenAccount();
+          }}
+        >
+          <User size={20} />
+          <span>Account</span>
         </button>
       </div>
 

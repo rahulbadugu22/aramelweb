@@ -1,14 +1,14 @@
 import React from 'react';
 import { Mail } from 'lucide-react';
 
-export default function Footer({ onOpenScanner, onOpenOrderTag, onNavigate }) {
+export default function Footer({ onOpenOrderTag, onNavigate }) {
   return (
     <footer className="footer-section">
       <div className="container">
         <div className="footer-top-grid">
           {/* Brand Info */}
           <div className="footer-brand-col">
-            <a href="#" className="footer-logo" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('home'); else window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <a href="/" className="footer-logo" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('home'); else window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="footer-logo-img" />
             </a>
             <p className="footer-brand-desc">
@@ -29,10 +29,9 @@ export default function Footer({ onOpenScanner, onOpenOrderTag, onNavigate }) {
             <ul className="footer-links">
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>How CarFrnd Tag Works</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹450)</a></li>
-              <li><a href="#/activate-tag" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('activate-tag'); }}>Activate CarFrnd Tag</a></li>
-              <li><a href="#/track-order" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('track-order'); }}>Track Your Order</a></li>
-              <li><a href="#/bill" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('bill'); }}>Download Bill / Invoice</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Scan a CarFrnd Tag</a></li>
+              <li><a href="/activate-tag" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('activate-tag'); }}>Activate CarFrnd Tag</a></li>
+              <li><a href="/track-order" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('track-order'); }}>Track Your Order</a></li>
+              <li><a href="/bill" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('bill'); }}>Download Bill / Invoice</a></li>
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>Privacy & Phone Protection</a></li>
             </ul>
           </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, Truck, Receipt } from 'lucide-react';
 
-export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
+export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -35,7 +35,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
     <header className={`navbar-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-container">
         {/* Crisp Logo */}
-        <a href="#" className="brand-logo" onClick={(e) => handleLinkClick(e, 'home')}>
+        <a href="/" className="brand-logo" onClick={(e) => handleLinkClick(e, 'home')}>
           <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="brand-logo-img" />
         </a>
 
@@ -58,7 +58,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
             Auto Services
           </a>
           <a
-            href="#/track-order"
+            href="/track-order"
             className={`nav-link ${currentView === 'track-order' ? 'active-nav' : ''}`}
             onClick={(e) => handleLinkClick(e, 'track-order')}
           >
@@ -66,7 +66,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
             Track Order
           </a>
           <a
-            href="#/activate-tag"
+            href="/activate-tag"
             className={`nav-link ${currentView === 'activate-tag' ? 'active-nav' : ''}`}
             onClick={(e) => handleLinkClick(e, 'activate-tag')}
           >
@@ -74,7 +74,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
             Activate Tag
           </a>
           <a
-            href="#/bill"
+            href="/bill"
             className={`nav-link ${currentView === 'bill' ? 'active-nav' : ''}`}
             onClick={(e) => handleLinkClick(e, 'bill')}
           >
@@ -85,10 +85,6 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
 
         {/* Action CTAs */}
         <div className="nav-actions">
-          <button className="btn-scanner-shortcut" onClick={onOpenScanner}>
-            <QrCode size={16} />
-            <span>Scan QR</span>
-          </button>
           <button className="btn-primary btn-nav-cta" onClick={onOpenOrderTag}>
             <Sparkles size={15} />
             <span>Get Tag ₹450</span>
@@ -108,19 +104,16 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, o
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
-          <a href="#" onClick={(e) => handleLinkClick(e, 'home')}>Home</a>
+          <a href="/" onClick={(e) => handleLinkClick(e, 'home')}>Home</a>
           <a href="#app-showcase" onClick={(e) => handleLinkClick(e, 'home', 'app-showcase')}>How CarFrnd Tag Works</a>
           <a href="#live-services" onClick={(e) => handleLinkClick(e, 'home', 'live-services')}>Auto Services</a>
-          <a href="#/track-order" onClick={(e) => handleLinkClick(e, 'track-order')}>Track Order</a>
-          <a href="#/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
-          <a href="#/bill" onClick={(e) => handleLinkClick(e, 'bill')}>Bill / Tax Invoice</a>
+          <a href="/track-order" onClick={(e) => handleLinkClick(e, 'track-order')}>Track Order</a>
+          <a href="/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
+          <a href="/bill" onClick={(e) => handleLinkClick(e, 'bill')}>Bill / Tax Invoice</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
               Get Your CarFrnd Tag — ₹450
-            </button>
-            <button className="btn-secondary full-w" onClick={() => { setMobileMenuOpen(false); onOpenScanner(); }}>
-              <QrCode size={16} /> Scan CarFrnd Tag
             </button>
           </div>
         </div>

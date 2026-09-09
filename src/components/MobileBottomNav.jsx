@@ -1,27 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Home, QrCode, ShoppingBag } from 'lucide-react';
 
-export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag, onOpenAccount }) {
-  const [activeTab, setActiveTab] = useState('home');
+export default function MobileBottomNav({ onOpenScanner, onOpenOrderTag, onNavigate, currentView }) {
+  const [scrollTab, setScrollTab] = useState('home');
 
   useEffect(() => {
+    if (currentView && currentView !== 'home') return;
+
     const handleScroll = () => {
       const scrollPos = window.scrollY + 250;
       const orderEl = document.getElementById('order-tag');
 
       if (orderEl && scrollPos >= orderEl.offsetTop) {
-        setActiveTab('order');
+        setScrollTab('order');
       } else {
-        setActiveTab('home');
+        setScrollTab('home');
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [currentView]);
+
+  const activeTab = (currentView && currentView !== 'home') ? currentView : scrollTab;
 
   const scrollToSection = (id, tabName) => {
-    setActiveTab(tabName);
+    setScrollTab(tabName);
+    if (currentView && currentView !== 'home' && onNavigate) {
+      onNavigate('home');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        else if (id === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
+      return;
+    }
+
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Truck, Lock } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, Lock, Receipt } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function OrderTagSection({ onOpenScanner }) {
+export default function OrderTagSection({ onOpenScanner, onOpenBill, onOpenTrackOrder }) {
   const [quantity, setQuantity] = useState(1);
   const [vehicleNo, setVehicleNo] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [latestOrder, setLatestOrder] = useState(null);
 
   const unitPrice = 450;
   const totalPrice = unitPrice * quantity;
@@ -19,6 +20,18 @@ export default function OrderTagSection({ onOpenScanner }) {
       alert('Please fill out all mandatory details including Vehicle Number!');
       return;
     }
+    const newOrderId = `CF-${Math.floor(100000 + Math.random() * 900000)}`;
+    const orderData = {
+      orderId: newOrderId,
+      name,
+      phone,
+      vehicleNo: vehicleNo.toUpperCase(),
+      address,
+      quantity,
+      totalPrice,
+      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    };
+    setLatestOrder(orderData);
     setOrderConfirmed(true);
     confetti({
       particleCount: 120,
@@ -55,7 +68,7 @@ export default function OrderTagSection({ onOpenScanner }) {
                     <ShieldCheck size={20} color="#FF2B85" />
                   </div>
                   <div className="feat-content">
-                    <h4>100% Privacy Protection</h4>
+                    <h4>Your Phone Number Stays Private</h4>
                     <p>Callers reach you via masked phone forwarding. Your personal mobile number is never exposed.</p>
                   </div>
                 </div>
@@ -65,8 +78,8 @@ export default function OrderTagSection({ onOpenScanner }) {
                     <Sparkles size={20} color="#FF2B85" />
                   </div>
                   <div className="feat-content">
-                    <h4>Weatherproof Industrial Decal</h4>
-                    <p>Sun, scratch, and pressure-wash resistant premium vinyl engineered for automotive windshields.</p>
+                    <h4>Weatherproof Automotive Decal</h4>
+                    <p>Durable Automotive Decal. Premium vinyl designed for use on automotive windshield.</p>
                   </div>
                 </div>
 
@@ -75,8 +88,8 @@ export default function OrderTagSection({ onOpenScanner }) {
                     <Truck size={20} color="#FF2B85" />
                   </div>
                   <div className="feat-content">
-                    <h4>Pan-India Doorstep Dispatch</h4>
-                    <p>Free express delivery with tracking right to your doorstep within 3–5 business days.</p>
+                    <h4>Doorstep Delivery</h4>
+                    <p>Delivered to your doorstep within 3–5 business days.</p>
                   </div>
                 </div>
               </div>
@@ -91,13 +104,31 @@ export default function OrderTagSection({ onOpenScanner }) {
                   </div>
                   <h3>Order Confirmed! 🎉</h3>
                   <p className="success-txt">
-                    Thank you <strong>{name}</strong>! Your order for <strong>{quantity}x CarFrnd Tag</strong> for vehicle <strong>{vehicleNo.toUpperCase()}</strong> has been placed successfully.
+                    Thank you <strong>{latestOrder?.name || name}</strong>! Your order for <strong>{latestOrder?.quantity || quantity}x CarFrnd Tag</strong> for vehicle <strong>{(latestOrder?.vehicleNo || vehicleNo).toUpperCase()}</strong> has been placed successfully.
                   </p>
                   <div className="tracking-box">
-                    <span>Order ID: <code>CF-{Math.floor(100000 + Math.random() * 900000)}</code></span>
-                    <span>Estimated Delivery: <strong>3-4 Business Days</strong></span>
+                    <span>Order ID: <code>{latestOrder?.orderId || 'CF-842918'}</code></span>
+                    <span>Estimated Delivery: <strong>3–5 Business Days</strong></span>
                   </div>
-                  <button className="btn-secondary" onClick={() => setOrderConfirmed(false)}>
+
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px' }}>
+                    <button
+                      className="btn-primary"
+                      style={{ flex: 1, padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      onClick={() => onOpenBill && onOpenBill(latestOrder)}
+                    >
+                      <Receipt size={15} /> View Bill / Invoice
+                    </button>
+                    <button
+                      className="btn-secondary"
+                      style={{ flex: 1, padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      onClick={() => onOpenTrackOrder && onOpenTrackOrder(latestOrder?.orderId)}
+                    >
+                      <Truck size={15} /> Track Order
+                    </button>
+                  </div>
+
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '4px', fontSize: '0.82rem' }} onClick={() => setOrderConfirmed(false)}>
                     Place Another Order
                   </button>
                 </div>
@@ -171,7 +202,7 @@ export default function OrderTagSection({ onOpenScanner }) {
 
                     <div className="shipping-benefit-tag">
                       <span className="green-dot"></span>
-                      <span>FREE PAN-INDIA DELIVERY • INCL. GST</span>
+                      <span>INCL. GST</span>
                     </div>
                   </div>
 
@@ -182,12 +213,12 @@ export default function OrderTagSection({ onOpenScanner }) {
                   <div className="trust-footer-row">
                     <div className="t-item">
                       <Truck size={14} color="#FF2B85" />
-                      <span>3–5 Days Free Delivery</span>
+                      <span>3–5 Business Days Delivery</span>
                     </div>
                     <span className="t-sep">•</span>
                     <div className="t-item">
                       <ShieldCheck size={14} color="#FF2B85" />
-                      <span>100% Number Privacy</span>
+                      <span>Your Phone Number Stays Private</span>
                     </div>
                   </div>
                 </form>

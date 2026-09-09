@@ -1,14 +1,14 @@
 import React from 'react';
 import { Mail } from 'lucide-react';
 
-export default function Footer({ onOpenScanner, onOpenOrderTag }) {
+export default function Footer({ onOpenScanner, onOpenOrderTag, onNavigate }) {
   return (
     <footer className="footer-section">
       <div className="container">
         <div className="footer-top-grid">
           {/* Brand Info */}
           <div className="footer-brand-col">
-            <a href="#" className="footer-logo">
+            <a href="#" className="footer-logo" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('home'); else window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="footer-logo-img" />
             </a>
             <p className="footer-brand-desc">
@@ -27,17 +27,20 @@ export default function Footer({ onOpenScanner, onOpenOrderTag }) {
           <div className="footer-col">
             <h4 className="footer-heading">CarFrnd Tag</h4>
             <ul className="footer-links">
-              <li><a href="#app-showcase">How CarFrnd Tag Works</a></li>
+              <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>How CarFrnd Tag Works</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹450)</a></li>
+              <li><a href="#/activate-tag" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('activate-tag'); }}>Activate CarFrnd Tag</a></li>
+              <li><a href="#/track-order" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('track-order'); }}>Track Your Order</a></li>
+              <li><a href="#/bill" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('bill'); }}>Download Bill / Invoice</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenScanner(); }}>Scan a CarFrnd Tag</a></li>
-              <li><a href="#app-showcase">Privacy & Phone Number Protection</a></li>
+              <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>Privacy & Phone Protection</a></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="footer-bottom-bar">
-          <p>© 2026 CarFrnd Technologies India Pvt. Ltd.</p>
+          <p>© 2026 Aramel Tech Private Limited. All rights reserved.</p>
           <div className="footer-legal-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Smartphone, Sparkles, Menu, X, Shield, Wrench, User } from 'lucide-react';
+import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, Truck, Receipt } from 'lucide-react';
 
-export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount }) {
+export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,23 +17,69 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLinkClick = (e, view, hash) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    if (onNavigate) {
+      onNavigate(view);
+    }
+    if (hash && view === 'home') {
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
+  };
+
   return (
     <header className={`navbar-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-container">
         {/* Crisp Logo */}
-        <a href="#" className="brand-logo">
+        <a href="#" className="brand-logo" onClick={(e) => handleLinkClick(e, 'home')}>
           <img src="/carfrndlogo.png" alt="CarFrnd Logo" className="brand-logo-img" />
         </a>
 
         {/* Desktop Nav Links */}
         <nav className="desktop-nav">
-          <a href="#app-showcase" className="nav-link">
+          <a
+            href="#app-showcase"
+            className={`nav-link ${currentView === 'home' ? 'active' : ''}`}
+            onClick={(e) => handleLinkClick(e, 'home', 'app-showcase')}
+          >
             <Smartphone className="nav-icon" size={16} />
             How It Works
           </a>
-          <a href="#live-services" className="nav-link">
+          <a
+            href="#live-services"
+            className="nav-link"
+            onClick={(e) => handleLinkClick(e, 'home', 'live-services')}
+          >
             <Wrench className="nav-icon" size={16} />
             Auto Services
+          </a>
+          <a
+            href="#/track-order"
+            className={`nav-link ${currentView === 'track-order' ? 'active-nav' : ''}`}
+            onClick={(e) => handleLinkClick(e, 'track-order')}
+          >
+            <Truck className="nav-icon" size={16} />
+            Track Order
+          </a>
+          <a
+            href="#/activate-tag"
+            className={`nav-link ${currentView === 'activate-tag' ? 'active-nav' : ''}`}
+            onClick={(e) => handleLinkClick(e, 'activate-tag')}
+          >
+            <Sparkles className="nav-icon" size={16} />
+            Activate Tag
+          </a>
+          <a
+            href="#/bill"
+            className={`nav-link ${currentView === 'bill' ? 'active-nav' : ''}`}
+            onClick={(e) => handleLinkClick(e, 'bill')}
+          >
+            <Receipt className="nav-icon" size={16} />
+            Bill
           </a>
         </nav>
 
@@ -62,8 +108,12 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
-          <a href="#app-showcase" onClick={() => setMobileMenuOpen(false)}>How CarFrnd Tag Works</a>
-          <a href="#live-services" onClick={() => setMobileMenuOpen(false)}>Auto Services</a>
+          <a href="#" onClick={(e) => handleLinkClick(e, 'home')}>Home</a>
+          <a href="#app-showcase" onClick={(e) => handleLinkClick(e, 'home', 'app-showcase')}>How CarFrnd Tag Works</a>
+          <a href="#live-services" onClick={(e) => handleLinkClick(e, 'home', 'live-services')}>Auto Services</a>
+          <a href="#/track-order" onClick={(e) => handleLinkClick(e, 'track-order')}>Track Order</a>
+          <a href="#/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
+          <a href="#/bill" onClick={(e) => handleLinkClick(e, 'bill')}>Bill / Tax Invoice</a>
           <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
@@ -150,7 +200,7 @@ export default function Navbar({ onOpenScanner, onOpenOrderTag, onOpenAccount })
           transition: all 0.2s ease;
         }
 
-        .nav-link:hover {
+        .nav-link:hover, .nav-link.active-nav {
           color: var(--magenta);
         }
 

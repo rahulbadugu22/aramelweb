@@ -65,7 +65,7 @@ export default function FAQSection() {
           </div>
           <div className="support-text-wrap">
             <h4>Need help with your CarFrnd Tag?</h4>
-            <p>Our support team can assist you with your car's smart contact tag.</p>
+            <p>Our support team can assist you with your CarFrnd Tag.</p>
           </div>
           <a href="mailto:support@carfrnd.com" className="btn-primary">
             Email support@carfrnd.com

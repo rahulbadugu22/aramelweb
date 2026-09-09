@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { User, ShieldCheck, PhoneCall, Bell, CheckCircle2, ChevronRight, LogOut, Car, AlertTriangle, Sparkles } from 'lucide-react';
+import { User, ShieldCheck, PhoneCall, CheckCircle2, LogOut, Car, AlertTriangle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
+export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNavigate }) {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -126,15 +126,33 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
                 <span className="section-label">ORDERS & BOOKINGS</span>
               </div>
 
-              <div className="order-summary-card">
-                <div className="order-s-icon">
-                  <Sparkles size={18} color="#FF2B85" />
+              <div className="order-summary-card" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="order-s-icon">
+                    <Sparkles size={18} color="#FF2B85" />
+                  </div>
+                  <div className="order-s-info">
+                    <span className="order-s-title">CarFrnd Tag (Weatherproof Decal)</span>
+                    <span className="order-s-sub">Order #CF-842918 • Dispatched (3–5 days)</span>
+                  </div>
+                  <span className="order-status-chip">In Transit</span>
                 </div>
-                <div className="order-s-info">
-                  <span className="order-s-title">CarFrnd Tag (Magenta Stealth)</span>
-                  <span className="order-s-sub">Order #CF-842918 • Dispatched (Expected in 2 days)</span>
+                <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '8px' }}>
+                  <button
+                    className="btn-secondary"
+                    style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
+                    onClick={() => { onClose(); if (onNavigate) onNavigate('track-order', 'CF-842918'); }}
+                  >
+                    Track Order
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
+                    onClick={() => { onClose(); if (onNavigate) onNavigate('bill', 'CF-842918'); }}
+                  >
+                    View Bill
+                  </button>
                 </div>
-                <span className="order-status-chip">In Transit</span>
               </div>
             </div>
 
@@ -144,10 +162,19 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag }) {
                 className="btn-secondary btn-order-more"
                 onClick={() => {
                   onClose();
+                  if (onNavigate) onNavigate('activate-tag');
+                }}
+              >
+                + Activate Tag
+              </button>
+              <button
+                className="btn-secondary btn-order-more"
+                onClick={() => {
+                  onClose();
                   if (onOpenOrderTag) onOpenOrderTag();
                 }}
               >
-                + Add Another Car Tag (₹450)
+                + Order Tag (₹450)
               </button>
               <button
                 className="btn-logout"

@@ -5,11 +5,11 @@ import confetti from 'canvas-confetti';
 
 export default function ActivateTagPage({ onNavigate }) {
   const [step, setStep] = useState(1);
-  const [tagId, setTagId] = useState('KA560100MM1234');
-  const [vehicleNo, setVehicleNo] = useState('MH 01 AB 1234');
-  const [vehicleType, setVehicleType] = useState('SUV');
-  const [vehicleModel, setVehicleModel] = useState('Tata Nexon');
-  const [ownerPhone, setOwnerPhone] = useState('9876543210');
+  const [tagId, setTagId] = useState('');
+  const [vehicleNo, setVehicleNo] = useState('');
+  const [vehicleType, setVehicleType] = useState('Car / SUV');
+  const [vehicleModel, setVehicleModel] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');

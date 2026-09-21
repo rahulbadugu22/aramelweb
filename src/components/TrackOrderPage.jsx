@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { ArrowLeft, Search, Truck, CheckCircle2, Package, MapPin, ShieldCheck, Sparkles, HelpCircle, Receipt } from 'lucide-react';
 
 export default function TrackOrderPage({ initialOrderId, onNavigate }) {
-  const [orderInput, setOrderInput] = useState(initialOrderId || 'CF-842918');
-  const [searchedId, setSearchedId] = useState(initialOrderId || 'CF-842918');
+  const [orderInput, setOrderInput] = useState(initialOrderId || '');
+  const [searchedId, setSearchedId] = useState(initialOrderId || '');
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
     {
       id: 2,
       title: 'Decal Printed & Encoded',
-      desc: 'Weatherproof automotive decal manufactured with encrypted QR & NFC for vehicle MH 01 AB 1234.',
+      desc: 'Weatherproof automotive decal manufactured with encrypted QR & NFC technology.',
       timestamp: '08 Sep 2026, 02:40 PM',
       completed: true,
       current: false,
@@ -76,7 +76,7 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
         <div className="track-search-card glass-card">
           <div className="search-copy">
             <h2>Track Your CarFrnd Tag Order</h2>
-            <p>Enter your 6-digit Order ID (e.g. <code>CF-842918</code>) or 10-digit registered mobile number.</p>
+            <p>Enter your Order ID or registered mobile number to check delivery status.</p>
           </div>
 
           <form onSubmit={handleSearch} className="track-input-form">
@@ -84,7 +84,7 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
               <Search size={18} color="#94A3B8" />
               <input
                 type="text"
-                placeholder="Enter Order ID (e.g. CF-842918)"
+                placeholder="Enter Order ID"
                 value={orderInput}
                 onChange={(e) => setOrderInput(e.target.value)}
               />
@@ -102,17 +102,17 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
               <span className="live-dot"></span>
               <span>IN TRANSIT — DISPATCHED</span>
             </div>
-            <h3 className="status-heading">Order #{searchedId}</h3>
+            <h3 className="status-heading">{searchedId ? `Order #${searchedId}` : 'Track Order'}</h3>
             <p className="status-sub">
-              Your CarFrnd Tag is on the way! Doorstep delivery is guaranteed within <strong>3–5 business days</strong>.
+              Doorstep delivery is dispatched via express logistics hub within <strong>3–5 business days</strong> of ordering.
             </p>
           </div>
 
           <div className="status-hero-right">
             <div className="delivery-est-box">
               <span className="est-label">Estimated Delivery</span>
-              <span className="est-date">Within 3–5 Business Days</span>
-              <span className="est-courier">Carrier: <strong>BlueDart Express Air</strong> (AWB: BD{searchedId.replace('CF-', '')}IN)</span>
+              <span className="est-date">3–5 Business Days</span>
+              <span className="est-courier">Carrier: <strong>Express Courier Partner</strong></span>
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
                 <div className="package-meta">
                   <h5>CarFrnd Smart Contact Tag</h5>
                   <p>Weatherproof Automotive Decal</p>
-                  <span className="vehicle-pill">Vehicle: MH 01 AB 1234</span>
+                  <span className="vehicle-pill">Automotive Contact Decal</span>
                 </div>
                 <span className="pkg-qty">Qty: 1</span>
               </div>
@@ -188,18 +188,16 @@ export default function TrackOrderPage({ initialOrderId, onNavigate }) {
                 <span>Delivery Address</span>
               </div>
               <div className="address-content">
-                <strong>Rahul Sharma</strong>
-                <p>Flat 402, Lotus Heights, Indiranagar<br />Bengaluru, Karnataka - 560038</p>
-                <span className="phone-num">Mobile: +91 98765 43210</span>
+              <div className="address-content">
+                <strong>Customer Address</strong>
+                <p>Address will be displayed after verifying mobile number via OTP.</p>
+                <span className="phone-num">Mobile: Authenticated Account Only</span>
+              </div>
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="sidebar-actions-card glass-card">
-              <button className="btn-secondary full-w action-btn" onClick={() => onNavigate('bill', searchedId)}>
-                <Receipt size={16} />
-                <span>Download Bill / Tax Invoice</span>
-              </button>
               <button className="btn-primary full-w action-btn" onClick={() => onNavigate('activate-tag')}>
                 <Sparkles size={16} />
                 <span>Activate Tag Once Delivered</span>

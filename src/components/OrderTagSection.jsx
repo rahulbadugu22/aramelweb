@@ -107,26 +107,17 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                     Thank you <strong>{latestOrder?.name || name}</strong>! Your order for <strong>{latestOrder?.quantity || quantity}x CarFrnd Tag</strong> for vehicle <strong>{(latestOrder?.vehicleNo || vehicleNo).toUpperCase()}</strong> has been placed successfully.
                   </p>
                   <div className="tracking-box">
-                    <span>Order ID: <code>{latestOrder?.orderId || 'CF-842918'}</code></span>
+                    <span>Order ID: <code>{latestOrder?.orderId || 'CF-NEW'}</code></span>
                     <span>Estimated Delivery: <strong>3–5 Business Days</strong></span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px' }}>
-                    <button
-                      className="btn-primary"
-                      style={{ flex: 1, padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                      onClick={() => onOpenBill && onOpenBill(latestOrder)}
-                    >
-                      <Receipt size={15} /> View Bill / Invoice
-                    </button>
-                    <button
-                      className="btn-secondary"
-                      style={{ flex: 1, padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                      onClick={() => onOpenTrackOrder && onOpenTrackOrder(latestOrder?.orderId)}
-                    >
-                      <Truck size={15} /> Track Order
-                    </button>
-                  </div>
+                  <button
+                    className="btn-primary"
+                    style={{ width: '100%', marginTop: '8px', padding: '10px', fontSize: '0.88rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    onClick={() => onOpenTrackOrder && onOpenTrackOrder(latestOrder?.orderId)}
+                  >
+                    <Truck size={15} /> Track Order Status
+                  </button>
 
                   <button className="btn-secondary" style={{ width: '100%', marginTop: '4px', fontSize: '0.82rem' }} onClick={() => setOrderConfirmed(false)}>
                     Place Another Order
@@ -140,7 +131,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                     <label>Full Name</label>
                     <input
                       type="text"
-                      placeholder="e.g. Rahul Sharma"
+                      placeholder="Enter your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required

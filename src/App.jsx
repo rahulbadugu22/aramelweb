@@ -30,7 +30,7 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState(getViewFromLocation());
   const [activeOrder, setActiveOrder] = useState(null);
-  const [activeOrderId, setActiveOrderId] = useState('CF-842918');
+  const [activeOrderId, setActiveOrderId] = useState('');
 
   // Handle browser back/forward and clean up any leftover hash
   useEffect(() => {

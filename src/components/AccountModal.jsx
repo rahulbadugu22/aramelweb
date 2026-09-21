@@ -3,7 +3,7 @@ import { User, ShieldCheck, PhoneCall, CheckCircle2, LogOut, Car, AlertTriangle,
 import confetti from 'canvas-confetti';
 
 export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNavigate }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
@@ -28,10 +28,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
     }
   };
 
-  const handleDemoLogin = () => {
-    setIsLoggedIn(true);
-    setOtpSent(false);
-  };
+
 
   return (
     <div className="account-modal-backdrop" onClick={onClose}>
@@ -47,12 +44,12 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
               </div>
               <div className="profile-info">
                 <div className="profile-name-row">
-                  <h4>Rahul Badugu</h4>
+                  <h4>CarFrnd Member</h4>
                   <span className="account-verified-badge">
                     <ShieldCheck size={12} /> Verified Owner
                   </span>
                 </div>
-                <span className="profile-phone">+91 98765 43210 • Primary Member</span>
+                <span className="profile-phone">Authenticated via OTP • Primary Member</span>
               </div>
             </div>
 
@@ -67,7 +64,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
                 <div className="v-card-top">
                   <div className="v-plate-wrap">
                     <Car size={16} color="#FF2B85" />
-                    <span className="v-number">MH 01 AB 1234</span>
+                    <span className="v-number">—</span>
                   </div>
                   <span className="v-status-pill">
                     <span className="dot-green"></span> ACTIVE
@@ -77,7 +74,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
                 <div className="v-details-grid">
                   <div className="detail-item">
                     <span className="detail-lbl">Tag ID</span>
-                    <span className="detail-val">KA560100MM1234</span>
+                    <span className="detail-val">—</span>
                   </div>
                   <div className="detail-item">
                     <span className="detail-lbl">Privacy Mode</span>
@@ -126,33 +123,8 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
                 <span className="section-label">ORDERS & BOOKINGS</span>
               </div>
 
-              <div className="order-summary-card" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="order-s-icon">
-                    <Sparkles size={18} color="#FF2B85" />
-                  </div>
-                  <div className="order-s-info">
-                    <span className="order-s-title">CarFrnd Tag (Weatherproof Decal)</span>
-                    <span className="order-s-sub">Order #CF-842918 • Dispatched (3–5 days)</span>
-                  </div>
-                  <span className="order-status-chip">In Transit</span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '8px' }}>
-                  <button
-                    className="btn-secondary"
-                    style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
-                    onClick={() => { onClose(); if (onNavigate) onNavigate('track-order', 'CF-842918'); }}
-                  >
-                    Track Order
-                  </button>
-                  <button
-                    className="btn-secondary"
-                    style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
-                    onClick={() => { onClose(); if (onNavigate) onNavigate('bill', 'CF-842918'); }}
-                  >
-                    View Bill
-                  </button>
-                </div>
+              <div className="order-empty-state">
+                <p className="order-empty-text">Your orders will appear here once the backend is connected and your account is verified.</p>
               </div>
             </div>
 
@@ -215,7 +187,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
 
               {otpSent && (
                 <div className="form-group" style={{ width: '100%' }}>
-                  <label className="input-label">Enter 4-Digit OTP (Code: 1234)</label>
+                  <label className="input-label">Enter OTP sent to your mobile</label>
                   <input
                     type="text"
                     placeholder="e.g. 1234"
@@ -233,14 +205,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
               </button>
             </form>
 
-            <div className="demo-shortcut-divider">
-              <span>OR</span>
-            </div>
-
-            <button type="button" className="btn-secondary full-w demo-access-btn" onClick={handleDemoLogin}>
-              <CheckCircle2 size={16} color="#059669" />
-              <span>Instant Account Access</span>
-            </button>
+            <p className="login-footer-note">Account access is available only via mobile OTP verification. Backend integration coming soon.</p>
           </div>
         )}
       </div>
@@ -690,34 +655,28 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
           background: #FFFFFF;
         }
 
-        .demo-shortcut-divider {
-          display: flex;
-          align-items: center;
-          width: 100%;
-          margin: 16px 0;
+        .login-footer-note {
+          font-size: 0.78rem;
           color: #94A3B8;
-          font-size: 0.75rem;
-          font-weight: 700;
+          text-align: center;
+          margin-top: 14px;
+          line-height: 1.5;
+          max-width: 340px;
         }
 
-        .demo-shortcut-divider:before, .demo-shortcut-divider:after {
-          content: "";
-          flex: 1;
-          height: 1px;
-          background: #E2E8F0;
+        .order-empty-state {
+          background: #F8FAFC;
+          border: 1px dashed #CBD5E1;
+          border-radius: 10px;
+          padding: 18px 16px;
+          text-align: center;
         }
 
-        .demo-shortcut-divider span {
-          padding: 0 10px;
-        }
-
-        .demo-access-btn {
-          padding: 10px;
-          font-size: 0.88rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
+        .order-empty-text {
+          font-size: 0.8rem;
+          color: #94A3B8;
+          line-height: 1.5;
+          margin: 0;
         }
 
         .full-w {

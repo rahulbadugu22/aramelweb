@@ -12,12 +12,17 @@ import AccountModal from './components/AccountModal';
 import BillPage from './components/BillPage';
 import TrackOrderPage from './components/TrackOrderPage';
 import ActivateTagPage from './components/ActivateTagPage';
+import PublicScanPage from './components/PublicScanPage';
+import SignInModal from './components/SignInModal';
+import SignOutConfirmModal from './components/SignOutConfirmModal';
+import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext';
 
-export default function App() {
+function MainApp() {
   const [doorstepModalOpen, setDoorstepModalOpen] = useState(false);
   const [accountModalOpen, setAccountModalOpen] = useState(false);
 
-  // Initialize view from URL pathname or hash, default to 'home'
+  const { isSignInModalOpen, closeSignInModal, openSignInModal } = useCustomerAuth();
+
   const getViewFromLocation = () => {
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
@@ -25,22 +30,36 @@ export default function App() {
     if (combined.includes('bill') || combined.includes('invoice')) return 'bill';
     if (combined.includes('track')) return 'track-order';
     if (combined.includes('activate')) return 'activate-tag';
+    if (path.startsWith('/q/') || path.startsWith('/scan/') || path === '/q' || path === '/scan') return 'public-scan';
     return 'home';
   };
 
+  const getScanTokenFromUrl = () => {
+    const p = window.location.pathname;
+    const match = p.match(/^\/(?:q|scan)\/(.+)$/i);
+    if (match && match[1]) return decodeURIComponent(match[1]);
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tag') || params.get('token') || '';
+  };
+
   const [currentView, setCurrentView] = useState(getViewFromLocation());
+  const [activeScanToken, setActiveScanToken] = useState(getScanTokenFromUrl());
   const [activeOrder, setActiveOrder] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState('');
 
-  // Handle browser back/forward and clean up any leftover hash
   useEffect(() => {
-    // If URL has #/ or #, clean it up immediately
     if (window.location.hash === '#/' || window.location.hash === '#') {
       window.history.replaceState(null, '', window.location.pathname);
     }
 
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('signin') || path.includes('login')) {
+      openSignInModal();
+    }
+
     const handleLocationChange = () => {
       setCurrentView(getViewFromLocation());
+      setActiveScanToken(getScanTokenFromUrl());
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -71,13 +90,21 @@ export default function App() {
         const id = typeof extraData === 'string' ? extraData : extraData.orderId;
         setActiveOrderId(id);
       }
+    } else if (view === 'public-scan') {
+      const tok = typeof extraData === 'string' ? extraData : extraData?.token || '';
+      setActiveScanToken(tok);
+      targetPath = tok ? `/q/${tok}` : '/q';
     } else if (view === 'activate-tag') {
+      const tag = typeof extraData === 'string' ? extraData : extraData?.tag || '';
+      targetPath = tag ? `/activate-tag?tag=${tag}` : '/activate-tag';
       targetPath = '/activate-tag';
+    } else if (view === 'signin' || view === 'login') {
+      openSignInModal();
+      return;
     } else {
       targetPath = '/';
     }
 
-    // Use clean pushState without ugly hashes
     if (window.location.pathname !== targetPath || window.location.hash) {
       window.history.pushState(null, '', targetPath);
     }
@@ -123,6 +150,11 @@ export default function App() {
           />
         ) : currentView === 'activate-tag' ? (
           <ActivateTagPage
+            onNavigate={handleNavigate}
+          />
+        ) : currentView === 'public-scan' ? (
+          <PublicScanPage
+            token={activeScanToken}
             onNavigate={handleNavigate}
           />
         ) : (
@@ -182,6 +214,24 @@ export default function App() {
         onOpenOrderTag={handleScrollToOrder}
         onNavigate={handleNavigate}
       />
+
+      {/* High-End Mobile OTP Sign In & Onboarding Modal */}
+      <SignInModal
+        isOpen={isSignInModalOpen}
+        onClose={closeSignInModal}
+        onNavigate={handleNavigate}
+      />
+
+      {/* Centered Sign Out Confirmation Popup */}
+      <SignOutConfirmModal />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <CustomerAuthProvider>
+      <MainApp />
+    </CustomerAuthProvider>
   );
 }

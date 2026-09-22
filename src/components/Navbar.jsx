@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, Truck, Receipt } from 'lucide-react';
+import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, Truck, Receipt, LogOut } from 'lucide-react';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { customer, isLoggedIn, openSignInModal, openSignOutModal } = useCustomerAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +32,16 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 50);
     }
+  };
+
+  const getCustomerInitial = () => {
+    if (!customer?.name) return 'C';
+    return customer.name.trim().charAt(0).toUpperCase();
+  };
+
+  const getCustomerFirstName = () => {
+    if (!customer?.name) return customer?.phone ? customer.phone.slice(-4) : 'Member';
+    return customer.name.split(' ')[0];
   };
 
   return (
@@ -89,10 +102,38 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
             <Sparkles size={15} />
             <span>Get Tag ₹450</span>
           </button>
-          <button className="btn-account-nav" onClick={onOpenAccount} title="My Account">
-            <User size={15} />
-            <span>Account</span>
-          </button>
+
+          {/* Dynamic Sign In / Account Buttons */}
+          {isLoggedIn ? (
+            <div className="logged-in-nav-group">
+              <button className="btn-account-pill" onClick={onOpenAccount} title="My Account & Vehicle Tags">
+                <div className="nav-avatar-circle">
+                  {getCustomerInitial()}
+                </div>
+                <span className="nav-customer-name">Hi, {getCustomerFirstName()}</span>
+              </button>
+
+              <button 
+                className="btn-signout-header" 
+                onClick={openSignOutModal}
+                title="Sign Out"
+              >
+                <LogOut size={14} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <button 
+              className="btn-signin-nav" 
+              onClick={openSignInModal} 
+              title="Sign In to CarFrnd"
+            >
+              <div className="btn-signin-icon-wrap">
+                <User size={15} />
+              </div>
+              <span className="btn-signin-label">Sign In</span>
+            </button>
+          )}
 
           {/* Mobile Hamburger Toggle */}
           <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle Menu">
@@ -110,7 +151,38 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           <a href="/track-order" onClick={(e) => handleLinkClick(e, 'track-order')}>Track Order</a>
           <a href="/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
           <a href="/bill" onClick={(e) => handleLinkClick(e, 'bill')}>Bill / Tax Invoice</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>My Account</a>
+          
+          {isLoggedIn ? (
+            <>
+              <a href="#" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); if (onOpenAccount) onOpenAccount(); }}>
+                My Account ({customer?.name || customer?.phone})
+              </a>
+              <a 
+                href="#" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setMobileMenuOpen(false); 
+                  openSignOutModal(); 
+                }}
+                style={{ color: '#E11D48', fontWeight: 800 }}
+              >
+                Sign Out
+              </a>
+            </>
+          ) : (
+            <a 
+              href="#" 
+              onClick={(e) => { 
+                e.preventDefault(); 
+                setMobileMenuOpen(false); 
+                openSignInModal(); 
+              }}
+              style={{ color: 'var(--magenta)', fontWeight: 800 }}
+            >
+              Sign In / Register
+            </a>
+          )}
+
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
               Get Your CarFrnd Tag — ₹450
@@ -201,42 +273,10 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           color: var(--magenta);
         }
 
-        .nav-badge {
-          font-size: 0.62rem;
-          font-weight: 900;
-          background: #ECFDF5;
-          color: #059669;
-          border: 1px solid #A7F3D0;
-          padding: 1px 5px;
-          border-radius: 4px;
-          margin-left: 2px;
-        }
-
         .nav-actions {
           display: flex;
           align-items: center;
           gap: 10px;
-        }
-
-        .btn-scanner-shortcut {
-          background: #FFF0F6;
-          color: var(--magenta);
-          border: 1px solid var(--magenta-border);
-          padding: 8px 14px;
-          border-radius: 10px;
-          font-weight: 700;
-          font-size: 0.85rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          transition: all 0.2s ease;
-        }
-
-        .btn-scanner-shortcut:hover {
-          background: var(--magenta);
-          color: #FFFFFF;
-          border-color: var(--magenta);
         }
 
         .btn-nav-cta {
@@ -245,25 +285,114 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           border-radius: 10px;
         }
 
-        .btn-account-nav {
+        /* High-End Sign In Button */
+        .btn-signin-nav {
+          background: #FFFFFF;
+          color: #0F172A;
+          border: 1.5px solid #CBD5E1;
+          padding: 7px 16px 7px 12px;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 0.88rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-signin-icon-wrap {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: #FFF0F6;
+          color: #FF2B85;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .btn-signin-nav:hover {
+          border-color: #FF2B85;
+          color: #FF2B85;
+          background: #FFF0F6;
+          box-shadow: 0 4px 14px rgba(255, 43, 133, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .btn-signin-nav:hover .btn-signin-icon-wrap {
+          background: #FF2B85;
+          color: #FFFFFF;
+        }
+
+        /* Logged In User Pill Group */
+        .logged-in-nav-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-account-pill {
           background: #F8FAFC;
-          color: #1E293B;
+          color: #0F172A;
           border: 1px solid #CBD5E1;
-          padding: 8px 14px;
-          border-radius: 10px;
+          padding: 5px 12px 5px 6px;
+          border-radius: 20px;
           font-weight: 700;
           font-size: 0.85rem;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           transition: all 0.2s ease;
         }
 
-        .btn-account-nav:hover {
-          background: var(--magenta-light);
-          color: var(--magenta);
-          border-color: var(--magenta-border);
+        .btn-account-pill:hover {
+          border-color: #FF2B85;
+          background: #FFF0F6;
+        }
+
+        .nav-avatar-circle {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #FF2B85 0%, #7928CA 100%);
+          color: #FFFFFF;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: 800;
+        }
+
+        .nav-customer-name {
+          color: #0F172A;
+          font-weight: 700;
+        }
+
+        /* Clean Sign Out Header Button */
+        .btn-signout-header {
+          background: #FFF1F2;
+          color: #E11D48;
+          border: 1px solid #FECDD3;
+          padding: 7px 12px;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 0.82rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          transition: all 0.2s ease;
+        }
+
+        .btn-signout-header:hover {
+          background: #E11D48;
+          color: #FFFFFF;
+          border-color: #E11D48;
+          box-shadow: 0 2px 10px rgba(225, 29, 72, 0.25);
         }
 
         .mobile-menu-btn {
@@ -323,13 +452,14 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
             align-items: center;
             justify-content: center;
           }
-          .btn-scanner-shortcut {
+          .btn-nav-cta {
             display: none;
           }
-          .btn-nav-cta {
-            display: none; /* Hide on mobile so it doesn't overlap logo/hamburger */
+          .btn-signin-nav {
+            padding: 6px 12px;
+            font-size: 0.8rem;
           }
-          .btn-account-nav {
+          .logged-in-nav-group .btn-signout-header {
             display: none;
           }
           .brand-logo {

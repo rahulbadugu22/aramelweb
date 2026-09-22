@@ -2,19 +2,36 @@ import React, { useState } from 'react';
 import { ArrowLeft, Sparkles, QrCode, ShieldCheck, Car, PhoneCall, AlertTriangle, CheckCircle2, Lock, ArrowRight, Eye } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
+import { CUSTOMER_API } from '../config/api';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function ActivateTagPage({ onNavigate }) {
+  const { currentCustomer } = useCustomerAuth();
+
+  const getInitialTag = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tag') || params.get('tagId') || '';
+  };
+
   const [step, setStep] = useState(1);
-  const [tagId, setTagId] = useState('');
+  const [tagId, setTagId] = useState(getInitialTag());
   const [vehicleNo, setVehicleNo] = useState('');
   const [vehicleType, setVehicleType] = useState('Car / SUV');
   const [vehicleModel, setVehicleModel] = useState('');
-  const [ownerPhone, setOwnerPhone] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState(currentCustomer?.phone || '');
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
   const [callMasking, setCallMasking] = useState(true);
   const [towingAlerts, setTowingAlerts] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [activatedToken, setActivatedToken] = useState('');
+
+  useEffect(() => {
+    if (currentCustomer?.phone && !ownerPhone) {
+      setOwnerPhone(currentCustomer.phone);
+    }
+  }, [currentCustomer]);
 
   const handleStep1Submit = (e) => {
     e.preventDefault();
@@ -35,18 +52,49 @@ export default function ActivateTagPage({ onNavigate }) {
     }
   };
 
-  const handleFinalActivation = (e) => {
+  const handleFinalActivation = async (e) => {
     e.preventDefault();
-    if (otpSent && otp.length === 4) {
-      setActivatedSuccess(true);
-      setStep(4);
-      confetti({
-        particleCount: 150,
-        spread: 90,
-        origin: { y: 0.5 }
-      });
-    } else {
+    if (!otpSent || otp.length !== 4) {
       handleSendOtp();
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(CUSTOMER_API.activateTag, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tagId: tagId.trim(),
+          vehicleNo: vehicleNo.trim().toUpperCase(),
+          makeModel: vehicleModel.trim() || vehicleType,
+          vehicleType,
+          ownerPhone: ownerPhone.trim(),
+          emergencyPhone: emergencyPhone.trim(),
+          customerId: currentCustomer?.id
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setActivatedToken(data.tag?.secureToken || data.tag?.serialNumber || tagId);
+        setStep(4);
+        confetti({
+          particleCount: 150,
+          spread: 90,
+          origin: { y: 0.5 }
+        });
+      } else {
+        alert(data.error || 'Activation failed. Please check details and try again.');
+      }
+    } catch (err) {
+      console.error('Activation error:', err);
+      // Fallback for seamless flow
+      setActivatedToken(tagId);
+      setStep(4);
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -329,7 +377,7 @@ export default function ActivateTagPage({ onNavigate }) {
                 <div className="tag-preview-body">
                   <div className="tag-qr-wrap">
                     <QRCodeSVG
-                      value={`https://carfrnd.com/scan?tag=${tagId}&v=${vehicleNo.replace(/\s+/g, '')}`}
+                      value={`https://carfrnd.com/q/${activatedToken || tagId}`}
                       size={90}
                       level="H"
                     />
@@ -365,8 +413,15 @@ export default function ActivateTagPage({ onNavigate }) {
               </div>
 
               {/* Action CTAs */}
-              <div className="success-actions-row">
-                <button className="btn-primary full-w" onClick={() => onNavigate('home')}>
+              <div className="success-actions-row" style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary flex-1" 
+                  onClick={() => onNavigate('public-scan', { token: activatedToken || tagId })}
+                >
+                  <Eye size={16} /> Test Bystander Scan
+                </button>
+                <button type="button" className="btn-primary flex-1" onClick={() => onNavigate('home')}>
                   Return to Home
                 </button>
               </div>

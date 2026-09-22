@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Home, ShoppingBag, Truck, User } from 'lucide-react';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
   const [scrollTab, setScrollTab] = useState('home');
+  const { isLoggedIn, openSignInModal } = useCustomerAuth();
 
   useEffect(() => {
     if (currentView && currentView !== 'home') return;
@@ -41,6 +43,14 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
       el.scrollIntoView({ behavior: 'smooth' });
     } else if (id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      if (onOpenAccount) onOpenAccount();
+    } else {
+      openSignInModal();
     }
   };
 
@@ -84,15 +94,16 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
           <span className="fab-badge">BUY</span>
         </div>
 
-        {/* Account Tab */}
+        {/* Dynamic Account / Sign In Tab */}
         <button
-          className="nav-tab-item"
-          onClick={() => {
-            if (onOpenAccount) onOpenAccount();
-          }}
+          className={`nav-tab-item ${isLoggedIn ? 'logged-in' : ''}`}
+          onClick={handleAccountClick}
         >
-          <User size={20} />
-          <span>Account</span>
+          <div className="tab-user-icon-wrap">
+            <User size={20} />
+            {isLoggedIn && <span className="online-user-dot"></span>}
+          </div>
+          <span>{isLoggedIn ? 'Account' : 'Sign In'}</span>
         </button>
       </div>
 
@@ -136,6 +147,24 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
           cursor: pointer;
           transition: all 0.2s ease;
           padding: 4px 0;
+        }
+
+        .tab-user-icon-wrap {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .online-user-dot {
+          position: absolute;
+          top: -2px;
+          right: -4px;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #10B981;
+          border: 1.5px solid #FFFFFF;
         }
 
         .nav-tab-item.active {
@@ -206,14 +235,8 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
         }
 
         @keyframes fabPulse {
-          0% {
-            transform: scale(0.95);
-            opacity: 0.8;
-          }
-          100% {
-            transform: scale(1.35);
-            opacity: 0;
-          }
+          0% { transform: scale(0.95); opacity: 0.8; }
+          100% { transform: scale(1.35); opacity: 0; }
         }
 
         @media (max-width: 900px) {

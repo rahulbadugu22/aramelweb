@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Sparkles, QrCode, ShieldCheck, Car, PhoneCall, AlertTriangle, CheckCircle2, Lock, ArrowRight, Eye } from 'lucide-react';
+import { ArrowLeft, Sparkles, QrCode, ShieldCheck, Car, PhoneCall, AlertTriangle, CheckCircle2, Lock, ArrowRight, Eye, Camera } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import { CUSTOMER_API } from '../config/api';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import QRScannerModal from './QRScannerModal';
 
 export default function ActivateTagPage({ onNavigate }) {
   const { currentCustomer } = useCustomerAuth();
@@ -26,6 +27,15 @@ export default function ActivateTagPage({ onNavigate }) {
   const [towingAlerts, setTowingAlerts] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activatedToken, setActivatedToken] = useState('');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannedSuccess, setScannedSuccess] = useState(false);
+
+  const handleScanSuccess = (detectedCode) => {
+    if (detectedCode) {
+      setTagId(detectedCode);
+      setScannedSuccess(true);
+    }
+  };
 
   useEffect(() => {
     if (currentCustomer?.phone && !ownerPhone) {
@@ -195,21 +205,94 @@ export default function ActivateTagPage({ onNavigate }) {
                 </p>
               </div>
 
+              {/* Instant QR Scan Action Card */}
+              <div className="scan-promo-card">
+                <div className="scan-promo-left">
+                  <div className="scan-promo-icon-ring">
+                    <Camera size={22} color="#FF2B85" />
+                    <span className="scan-halo-dot"></span>
+                  </div>
+                  <div className="scan-promo-info">
+                    <div className="scan-fast-badge">
+                      <Sparkles size={11} />
+                      <span>RECOMMENDED • INSTANT</span>
+                    </div>
+                    <h4>Scan Decal QR Code</h4>
+                    <p>Point camera at decal to auto-detect and fetch your Tag ID</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-open-scanner"
+                  onClick={() => setIsScannerOpen(true)}
+                  id="btn-scan-qr-hero"
+                >
+                  <Camera size={16} />
+                  <span>Scan QR Code</span>
+                </button>
+              </div>
+
+              <div className="tag-or-divider">
+                <span>OR ENTER MANUALLY</span>
+              </div>
+
               <form onSubmit={handleStep1Submit} className="activate-form">
                 <div className="form-group">
-                  <label className="activate-label">Tag ID (Printed on Decal)</label>
-                  <input
-                    type="text"
-                    className="activate-input font-mono"
-                    placeholder="e.g. KA560100MM1234"
-                    value={tagId}
-                    onChange={(e) => setTagId(e.target.value.toUpperCase())}
-                    required
-                  />
-                  <span className="input-hint">Default demo code entered. You can customize or leave as is.</span>
+                  <div className="label-with-action">
+                    <label className="activate-label">Tag ID (Printed on Decal)</label>
+                    <button
+                      type="button"
+                      className="label-scan-btn"
+                      onClick={() => setIsScannerOpen(true)}
+                    >
+                      <Camera size={13} />
+                      <span>Scan with Camera</span>
+                    </button>
+                  </div>
+
+                  <div className="tag-input-container">
+                    <input
+                      type="text"
+                      className={`activate-input font-mono ${scannedSuccess ? 'input-scanned-success' : ''}`}
+                      placeholder="e.g. KA560100MM1234"
+                      value={tagId}
+                      onChange={(e) => {
+                        setTagId(e.target.value.toUpperCase());
+                        setScannedSuccess(false);
+                      }}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="input-affix-scan-btn"
+                      onClick={() => setIsScannerOpen(true)}
+                      title="Scan QR Code with Camera"
+                    >
+                      <QrCode size={15} />
+                      <span>Scan</span>
+                    </button>
+                  </div>
+
+                  {scannedSuccess ? (
+                    <div className="scanned-success-hint">
+                      <CheckCircle2 size={15} color="#059669" />
+                      <span>Tag ID <strong>{tagId}</strong> auto-fetched from QR! Proceed to vehicle details.</span>
+                      <button 
+                        type="button" 
+                        className="btn-rescan-link"
+                        onClick={() => setIsScannerOpen(true)}
+                      >
+                        Re-scan
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="input-hint">
+                      Enter the 14-character code printed under decal QR, or tap <strong>Scan</strong> above.
+                    </span>
+                  )}
                 </div>
 
-                <button type="submit" className="btn-primary full-w next-btn">
+                <button type="submit" className={`btn-primary full-w next-btn ${scannedSuccess ? 'btn-pulse-glow' : ''}`}>
                   Continue to Vehicle Details <ArrowRight size={16} />
                 </button>
               </form>
@@ -472,6 +555,13 @@ export default function ActivateTagPage({ onNavigate }) {
         </div>
       </div>
 
+      {/* QR Scanner Modal for Instant Auto-Fetch */}
+      <QRScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleScanSuccess}
+      />
+
       <style>{`
         .activate-page-container {
           min-height: 100vh;
@@ -691,24 +781,253 @@ export default function ActivateTagPage({ onNavigate }) {
           display: block;
         }
 
-        .scan-shortcut-box {
+        /* Scan Decal QR Promo Card */
+        .scan-promo-card {
+          background: linear-gradient(135deg, rgba(255, 43, 133, 0.05) 0%, #FFFFFF 100%);
+          border: 1.5px solid rgba(255, 43, 133, 0.22);
+          border-radius: 16px;
+          padding: 16px 18px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: #F8FAFC;
-          border: 1px dashed #CBD5E1;
-          padding: 10px 14px;
-          border-radius: 10px;
-          font-size: 0.82rem;
-          color: #64748B;
+          gap: 16px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 18px rgba(255, 43, 133, 0.06);
+          transition: all 0.25s ease;
         }
 
-        .scan-btn-mini {
-          padding: 6px 12px;
+        .scan-promo-card:hover {
+          border-color: var(--magenta, #FF2B85);
+          box-shadow: 0 6px 24px rgba(255, 43, 133, 0.12);
+          transform: translateY(-1px);
+        }
+
+        .scan-promo-left {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .scan-promo-icon-ring {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: #FFE6F1;
+          border: 1px solid rgba(255, 43, 133, 0.28);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          position: relative;
+        }
+
+        .scan-halo-dot {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #FF2B85;
+          box-shadow: 0 0 8px #FF2B85;
+          animation: scanPulse 1.8s infinite;
+        }
+
+        @keyframes scanPulse {
+          0% { transform: scale(0.9); opacity: 0.8; }
+          50% { transform: scale(1.3); opacity: 1; }
+          100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        .scan-fast-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: #FFE6F1;
+          color: var(--magenta, #FF2B85);
+          font-size: 0.66rem;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          padding: 2px 8px;
+          border-radius: 20px;
+          margin-bottom: 4px;
+        }
+
+        .scan-promo-info h4 {
+          margin: 0 0 2px 0;
+          font-size: 0.98rem;
+          font-weight: 800;
+          color: #0F172A;
+        }
+
+        .scan-promo-info p {
+          margin: 0;
           font-size: 0.78rem;
+          color: #64748B;
+          line-height: 1.35;
+        }
+
+        .btn-open-scanner {
+          background: linear-gradient(135deg, #FF2B85 0%, #D81B60 100%);
+          color: #FFFFFF;
+          border: none;
+          padding: 10px 18px;
+          border-radius: 10px;
+          font-size: 0.86rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          white-space: nowrap;
+          box-shadow: 0 4px 14px rgba(255, 43, 133, 0.35);
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .btn-open-scanner:hover {
+          background: linear-gradient(135deg, #E02072 0%, #C2185B 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(255, 43, 133, 0.45);
+        }
+
+        /* Divider */
+        .tag-or-divider {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin: 2px 0 18px 0;
+        }
+
+        .tag-or-divider::before,
+        .tag-or-divider::after {
+          content: '';
+          flex: 1;
+          border-bottom: 1px solid #E2E8F0;
+        }
+
+        .tag-or-divider span {
+          padding: 0 12px;
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          color: #94A3B8;
+        }
+
+        /* Input with inline scan button */
+        .label-with-action {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+
+        .label-scan-btn {
+          background: none;
+          border: none;
+          color: var(--magenta, #FF2B85);
+          font-size: 0.75rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          padding: 0;
+          transition: opacity 0.2s;
+        }
+
+        .label-scan-btn:hover {
+          opacity: 0.8;
+          text-decoration: underline;
+        }
+
+        .tag-input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .tag-input-container .activate-input {
+          padding-right: 92px;
+        }
+
+        .input-affix-scan-btn {
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #FFE6F1;
+          border: 1px solid rgba(255, 43, 133, 0.35);
+          color: var(--magenta, #FF2B85);
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 0.78rem;
+          font-weight: 800;
           display: flex;
           align-items: center;
           gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .input-affix-scan-btn:hover {
+          background: var(--magenta, #FF2B85);
+          color: #FFFFFF;
+        }
+
+        .input-scanned-success {
+          border-color: #10B981 !important;
+          background: #F0FDF4 !important;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .scanned-success-hint {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #059669;
+          margin-top: 6px;
+          background: #ECFDF5;
+          padding: 7px 12px;
+          border-radius: 8px;
+          border: 1px solid #A7F3D0;
+          animation: hintFadeIn 0.25s ease-out;
+        }
+
+        @keyframes hintFadeIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-rescan-link {
+          margin-left: auto;
+          background: none;
+          border: none;
+          color: var(--magenta, #FF2B85);
+          font-size: 0.72rem;
+          font-weight: 800;
+          text-decoration: underline;
+          cursor: pointer;
+          padding: 0;
+        }
+
+        .btn-pulse-glow {
+          box-shadow: 0 0 20px rgba(255, 43, 133, 0.45) !important;
+        }
+
+        @media (max-width: 640px) {
+          .scan-promo-card {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: left;
+            gap: 12px;
+          }
+          .btn-open-scanner {
+            width: 100%;
+            justify-content: center;
+          }
         }
 
         .form-row-2 {

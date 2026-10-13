@@ -18,5 +18,8 @@ export const PUBLIC_API = {
   scanTag: (token) => `${API_BASE_URL}/api/public/qr/${token}`,
   verifyPlate: (token) => `${API_BASE_URL}/api/public/qr/${token}/verify-plate`,
   parkingReasons: `${API_BASE_URL}/api/settings/parking-reasons`,
-  createAlert: `${API_BASE_URL}/api/public/alerts`
+  createAlert: `${API_BASE_URL}/api/public/alerts`,
+  connectMaskedCall: `${API_BASE_URL}/api/public/calls/masked-connect`,
+  callStatus: (callSid) => `${API_BASE_URL}/api/public/calls/${callSid}/status`
 };
+

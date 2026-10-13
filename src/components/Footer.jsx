@@ -30,9 +30,8 @@ export default function Footer({ onOpenOrderTag, onNavigate }) {
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>How CarFrnd Tag Works</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹450)</a></li>
               <li><a href="/activate-tag" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('activate-tag'); }}>Activate CarFrnd Tag</a></li>
-              <li><a href="/track-order" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('track-order'); }}>Track Your Order</a></li>
-              <li><a href="/bill" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('bill'); }}>Download Bill / Invoice</a></li>
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>Privacy & Phone Protection</a></li>
+
             </ul>
           </div>
         </div>

@@ -65,8 +65,11 @@ export default function PublicScanPage({ token, onNavigate }) {
   const [alertSubmitted, setAlertSubmitted] = useState(false);
   const [lastDispatchedAlert, setLastDispatchedAlert] = useState(null);
 
-  // Call Bridge Modal State
-  const [showCallBridgeModal, setShowCallBridgeModal] = useState(false);
+  // Masked Voice Call Flow State (Exotel)
+  const [callerPhone, setCallerPhone] = useState('');
+  const [callState, setCallState] = useState('idle'); // 'idle' | 'initiating' | 'ringing' | 'connected' | 'ended' | 'failed'
+  const [callData, setCallData] = useState(null);
+  const [callError, setCallError] = useState('');
 
   useEffect(() => {
     if (!effectiveToken) {
@@ -203,6 +206,87 @@ export default function PublicScanPage({ token, onNavigate }) {
     setCustomNote('');
     setSenderPhone('');
   };
+
+  // Initiate Private Masked Voice Call via Exotel
+  const handleInitiateCall = async (e) => {
+    if (e) e.preventDefault();
+    const clean = callerPhone.trim().replace(/\D/g, '');
+    if (clean.length < 10) {
+      setCallError('Please enter a valid 10-digit mobile number so the voice bridge can call your phone.');
+      return;
+    }
+
+    setCallState('initiating');
+    setCallError('');
+
+    try {
+      const payload = {
+        token: effectiveToken,
+        secureToken: tagData?.secureToken || effectiveToken,
+        serialNumber: tagData?.serialNumber || effectiveToken,
+        callerPhone: clean.slice(-10),
+        reason: selectedReason?.title || customNote.trim() || 'Parking Assistance'
+      };
+
+      const res = await fetch(PUBLIC_API.connectMaskedCall, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCallData(data);
+        setCallState('ringing');
+        confetti({
+          particleCount: 90,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } else {
+        setCallError(data.error || 'Unable to establish masked call. Please try again or send an SMS alert.');
+        setCallState('idle');
+      }
+    } catch (err) {
+      console.error('Call initiation error:', err);
+      setCallError('Network connection issue. Please verify your connection.');
+      setCallState('idle');
+    }
+  };
+
+  // Poll Exotel Call Status
+  useEffect(() => {
+    if (!callData?.callSid || (callState !== 'ringing' && callState !== 'connected')) {
+      return;
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(PUBLIC_API.callStatus(callData.callSid));
+        if (res.ok) {
+          const statusResult = await res.json();
+          if (statusResult.status === 'in-progress') {
+            setCallState('connected');
+          } else if (statusResult.status === 'completed') {
+            setCallState('ended');
+          } else if (['failed', 'busy', 'no-answer', 'canceled'].includes(statusResult.status)) {
+            setCallState('failed');
+          }
+        }
+      } catch (err) {
+        console.warn('Call status check error:', err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [callData?.callSid, callState]);
+
+  const handleResetCall = () => {
+    setCallState('idle');
+    setCallError('');
+    setCallData(null);
+  };
+
 
   return (
     <div className="public-scan-container">
@@ -544,87 +628,243 @@ export default function PublicScanPage({ token, onNavigate }) {
 
             {/* TAB 2: Masked Phone Call Flow */}
             {activeTab === 'call' && (
-              <div className="bystander-action-card glass-card text-center">
-                <div className="call-hero-icon">
-                  <PhoneCall size={48} color="#FF2B85" />
-                </div>
-                <h3>Connect via Masked Voice Bridge</h3>
-                <p className="call-explain-text">
-                  Speak directly with the vehicle owner without sharing your phone number or learning theirs.
-                </p>
+              <div className="bystander-action-card glass-card">
+                {/* 1. IDLE / FORM STATE */}
+                {(callState === 'idle' || callState === 'initiating') && (
+                  <div>
+                    <div className="text-center">
+                      <div className="call-hero-icon">
+                        <div className="call-icon-halo">
+                          <PhoneCall size={38} color="#FF2B85" />
+                        </div>
+                      </div>
+                      <h3>Connect via Masked Voice Bridge</h3>
+                      <p className="call-explain-text">
+                        Speak directly with the vehicle owner without sharing your phone number or seeing theirs.
+                      </p>
+                    </div>
 
-                {/* 3 Steps Visual */}
-                <div className="call-steps-grid">
-                  <div className="c-step">
-                    <span className="c-num">1</span>
-                    <span>Tap Call Bridge Button</span>
-                  </div>
-                  <div className="c-step">
-                    <span className="c-num">2</span>
-                    <span>Private Proxy Dials Both</span>
-                  </div>
-                  <div className="c-step">
-                    <span className="c-num">3</span>
-                    <span>Speak Safely & Confidentially</span>
-                  </div>
-                </div>
+                    {/* 3 Steps Visual */}
+                    <div className="call-steps-grid">
+                      <div className="c-step">
+                        <span className="c-num">1</span>
+                        <span>Enter Your Mobile</span>
+                      </div>
+                      <div className="c-step">
+                        <span className="c-num">2</span>
+                        <span>Answer CarFrnd Line</span>
+                      </div>
+                      <div className="c-step">
+                        <span className="c-num">3</span>
+                        <span>Talk Privately</span>
+                      </div>
+                    </div>
 
-                <button 
-                  className="btn-primary full-w call-cta-btn"
-                  onClick={() => setShowCallBridgeModal(true)}
-                >
-                  <PhoneCall size={20} />
-                  <span>Initiate Private Masked Call</span>
-                </button>
+                    {/* Caller Phone Input Form */}
+                    <form onSubmit={handleInitiateCall} className="masked-call-form">
+                      <div className="input-group-custom">
+                        <label className="input-label">
+                          <span>Your Mobile Phone Number</span>
+                          <span className="required-star">*</span>
+                        </label>
+                        <div className="phone-input-wrap">
+                          <div className="country-code-pill">
+                            <span className="flag-icon">🇮🇳</span>
+                            <span className="code-text">+91</span>
+                          </div>
+                          <input 
+                            type="tel"
+                            className="text-input phone-field"
+                            placeholder="98765 43210"
+                            maxLength={10}
+                            value={callerPhone}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                              setCallerPhone(val);
+                              if (callError) setCallError('');
+                            }}
+                            disabled={callState === 'initiating'}
+                            autoComplete="tel"
+                          />
+                        </div>
+                        <p className="input-hint-small">
+                          CarFrnd's virtual line <strong>(09513886363)</strong> will dial this number first, then securely bridge you to the vehicle owner.
+                        </p>
+                      </div>
 
-                <p className="call-privacy-note">
-                  <Lock size={13} color="#64748B" />
-                  <span>No mobile app or registration required for callers.</span>
-                </p>
+                      {callError && (
+                        <div className="alert-error-banner" style={{ marginTop: '14px' }}>
+                          <AlertCircle size={16} />
+                          <span>{callError}</span>
+                        </div>
+                      )}
+
+                      <button 
+                        type="submit"
+                        className="btn-primary full-w call-cta-btn"
+                        disabled={callerPhone.length < 10 || callState === 'initiating'}
+                        style={{ marginTop: '20px' }}
+                      >
+                        {callState === 'initiating' ? (
+                          <>
+                            <RefreshCw size={18} className="spin-slow" />
+                            <span>Connecting Telecom Bridge...</span>
+                          </>
+                        ) : (
+                          <>
+                            <PhoneCall size={20} />
+                            <span>Connect Private Masked Call</span>
+                          </>
+                        )}
+                      </button>
+
+                      <div className="call-privacy-shield-box">
+                        <Lock size={15} color="#059669" />
+                        <span><strong>100% Privacy Shield:</strong> Exotel Virtual Proxy masks both numbers. Neither you nor the driver can view each other's personal phone number.</span>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* 2. RINGING STATE: Exotel is dialing bystander */}
+                {callState === 'ringing' && (
+                  <div className="text-center call-ringing-view">
+                    <div className="call-pulse-ring-wrap">
+                      <div className="pulse-ring-anim"></div>
+                      <div className="pulse-ring-anim delay-1"></div>
+                      <div className="call-ringing-circle">
+                        <PhoneCall size={42} color="#FFFFFF" className="shake-anim" />
+                      </div>
+                    </div>
+
+                    <h3 className="ringing-title">Incoming Call on Your Phone!</h3>
+                    <p className="ringing-sub">
+                      Our Exotel telecom bridge is dialing your mobile now.
+                    </p>
+
+                    <div className="virtual-caller-id-card">
+                      <span className="vc-label">Incoming Call From</span>
+                      <div className="vc-number-row">
+                        <span className="vc-badge">CarFrnd Line</span>
+                        <strong className="vc-number">09513886363</strong>
+                      </div>
+                      <p className="vc-hint">
+                        Pick up your phone when it rings to be connected to the owner of <strong>{verifiedVehicle?.regNumber || tagData?.vehicle?.maskedReg}</strong>.
+                      </p>
+                    </div>
+
+                    <div className="call-timeline-steps">
+                      <div className="t-step active">
+                        <CheckCircle2 size={16} color="#10B981" />
+                        <span>Dialing your mobile (+91 {callerPhone.slice(0, 2)}*** ***{callerPhone.slice(-2)})</span>
+                      </div>
+                      <div className="t-step active pulse-step">
+                        <RefreshCw size={14} className="spin-slow" color="#FF2B85" />
+                        <span>Waiting for you to answer...</span>
+                      </div>
+                      <div className="t-step pending">
+                        <div className="t-dot"></div>
+                        <span>Bridging with vehicle owner</span>
+                      </div>
+                    </div>
+
+                    <div className="btn-group-dual" style={{ marginTop: '24px' }}>
+                      <button 
+                        className="btn-secondary"
+                        onClick={() => {
+                          handleResetCall();
+                          setActiveTab('message');
+                        }}
+                      >
+                        <Send size={16} /> Send SMS Alert Instead
+                      </button>
+                      <button 
+                        className="btn-outline-cancel"
+                        onClick={handleResetCall}
+                      >
+                        Cancel Call
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. CONNECTED STATE */}
+                {callState === 'connected' && (
+                  <div className="text-center call-connected-view">
+                    <div className="connected-icon-circle">
+                      <PhoneCall size={44} color="#10B981" />
+                    </div>
+                    <h3 className="connected-title">Voice Bridge Connected</h3>
+                    <p className="connected-sub">
+                      You are now connected privately with the driver of <strong>{verifiedVehicle?.regNumber || tagData?.vehicle?.maskedReg}</strong>.
+                    </p>
+                    <div className="call-in-progress-badge">
+                      <span className="live-dot"></span>
+                      <span>Call in Progress • 100% Masked</span>
+                    </div>
+
+                    <div style={{ marginTop: '24px' }}>
+                      <button className="btn-primary full-w" onClick={handleResetCall}>
+                        End / Finished
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. ENDED STATE */}
+                {callState === 'ended' && (
+                  <div className="text-center call-ended-view">
+                    <div className="ended-icon-circle">
+                      <CheckCircle2 size={46} color="#10B981" />
+                    </div>
+                    <h3>Masked Call Completed</h3>
+                    <p className="call-explain-text">
+                      Thank you for using CarFrnd privacy calling to communicate with the vehicle owner!
+                    </p>
+                    <div className="btn-group-dual" style={{ marginTop: '20px' }}>
+                      <button className="btn-secondary" onClick={handleResetCall}>
+                        Call Again
+                      </button>
+                      <button className="btn-primary flex-1" onClick={() => onNavigate('home')}>
+                        Back to Home
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. FAILED / UNANSWERED STATE */}
+                {callState === 'failed' && (
+                  <div className="text-center call-failed-view">
+                    <div className="failed-icon-circle">
+                      <AlertTriangle size={44} color="#F59E0B" />
+                    </div>
+                    <h3>Call Unanswered or Busy</h3>
+                    <p className="call-explain-text">
+                      The phone call could not be completed. You can send an instant high-priority SMS alert so the driver gets notified immediately!
+                    </p>
+
+                    <div className="btn-group-dual" style={{ marginTop: '20px' }}>
+                      <button 
+                        className="btn-primary flex-1"
+                        onClick={() => {
+                          handleResetCall();
+                          setActiveTab('message');
+                        }}
+                      >
+                        <Send size={16} /> Send SMS Alert Now
+                      </button>
+                      <button className="btn-secondary" onClick={handleResetCall}>
+                        Retry Call
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
       </main>
 
-      {/* Call Bridge Info / Staging Modal */}
-      {showCallBridgeModal && (
-        <div className="modal-backdrop-custom">
-          <div className="modal-box-card glass-card">
-            <div className="modal-header-row">
-              <h4>Anonymous Voice Bridge</h4>
-              <button className="modal-close-btn" onClick={() => setShowCallBridgeModal(false)}>✕</button>
-            </div>
-            <div className="modal-body-content text-center">
-              <div className="bridge-icon-circle">
-                <PhoneCall size={36} color="#059669" />
-              </div>
-              <h5>Voice Gateway Initialized</h5>
-              <p className="modal-desc-text">
-                CarFrnd's telecom bridge is staging for direct cellular operator trunking.
-                To ensure immediate response right now, our instant SMS alert notifies the owner within 3 seconds!
-              </p>
-              <div className="modal-actions-col">
-                <button 
-                  className="btn-primary full-w"
-                  onClick={() => {
-                    setShowCallBridgeModal(false);
-                    setActiveTab('message');
-                  }}
-                >
-                  <Send size={16} /> Switch to Instant SMS Alert
-                </button>
-                <button 
-                  className="btn-secondary full-w"
-                  onClick={() => setShowCallBridgeModal(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Styles */}
       <style>{`
@@ -1281,51 +1521,131 @@ export default function PublicScanPage({ token, onNavigate }) {
           margin: 10px 0 16px 0;
         }
 
+        .call-icon-halo {
+          width: 72px;
+          height: 72px;
+          border-radius: 50%;
+          background: rgba(255, 43, 133, 0.1);
+          border: 1px solid rgba(255, 43, 133, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         .call-explain-text {
           font-size: 0.94rem;
           color: #64748B;
-          max-width: 400px;
-          margin: 0 auto 24px auto;
+          max-width: 420px;
+          margin: 0 auto 20px auto;
+          line-height: 1.5;
         }
 
         .call-steps-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
-          margin-bottom: 28px;
+          gap: 10px;
+          margin-bottom: 24px;
         }
 
         .c-step {
           background: #F8FAFC;
           border: 1px solid #E2E8F0;
           border-radius: 12px;
-          padding: 14px 8px;
+          padding: 12px 8px;
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 6px;
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           font-weight: 700;
           color: #334155;
           text-align: center;
         }
 
         .c-num {
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
           background: #FF2B85;
           color: #FFFFFF;
-          font-size: 0.78rem;
+          font-size: 0.75rem;
           font-weight: 800;
           display: flex;
           align-items: center;
           justify-content: center;
         }
 
+        .masked-call-form {
+          text-align: left;
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          border-radius: 16px;
+          padding: 20px;
+        }
+
+        .phone-input-wrap {
+          display: flex;
+          align-items: center;
+          border: 1.5px solid #CBD5E1;
+          border-radius: 12px;
+          overflow: hidden;
+          background: #FFFFFF;
+          transition: border-color 0.2s;
+        }
+
+        .phone-input-wrap:focus-within {
+          border-color: #FF2B85;
+          box-shadow: 0 0 0 3px rgba(255, 43, 133, 0.12);
+        }
+
+        .country-code-pill {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 14px;
+          background: #F1F5F9;
+          border-right: 1px solid #CBD5E1;
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #334155;
+          user-select: none;
+        }
+
+        .phone-field {
+          flex: 1;
+          border: none;
+          padding: 12px 14px;
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: #0F172A;
+          letter-spacing: 0.5px;
+          outline: none;
+        }
+
+        .input-hint-small {
+          font-size: 0.8rem;
+          color: #64748B;
+          margin-top: 6px;
+          line-height: 1.4;
+        }
+
+        .call-privacy-shield-box {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-top: 18px;
+          padding: 12px 14px;
+          background: #ECFDF5;
+          border: 1px solid #A7F3D0;
+          border-radius: 12px;
+          font-size: 0.82rem;
+          color: #065F46;
+          line-height: 1.45;
+        }
+
         .call-cta-btn {
           padding: 15px;
-          font-size: 1.05rem;
+          font-size: 1.02rem;
           font-weight: 800;
           display: flex;
           align-items: center;
@@ -1333,65 +1653,257 @@ export default function PublicScanPage({ token, onNavigate }) {
           gap: 10px;
         }
 
-        .call-privacy-note {
+        /* Ringing View */
+        .call-ringing-view {
+          padding: 10px 0;
+        }
+
+        .call-pulse-ring-wrap {
+          position: relative;
+          width: 96px;
+          height: 96px;
+          margin: 0 auto 20px auto;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          font-size: 0.8rem;
-          color: #64748B;
-          margin-top: 14px;
         }
 
-        /* Modal Backdrop */
-        .modal-backdrop-custom {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(15, 23, 42, 0.6);
-          backdrop-filter: blur(4px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 16px;
-        }
-
-        .modal-box-card {
-          background: #FFFFFF;
-          border-radius: 20px;
-          max-width: 440px;
+        .pulse-ring-anim {
+          position: absolute;
           width: 100%;
-          padding: 24px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+          height: 100%;
+          border-radius: 50%;
+          background: rgba(255, 43, 133, 0.3);
+          animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
 
-        .modal-header-row {
+        .pulse-ring-anim.delay-1 {
+          animation-delay: 0.6s;
+        }
+
+        @keyframes pulseRing {
+          0% {
+            transform: scale(0.7);
+            opacity: 0.9;
+          }
+          100% {
+            transform: scale(1.6);
+            opacity: 0;
+          }
+        }
+
+        .call-ringing-circle {
+          position: relative;
+          z-index: 2;
+          width: 76px;
+          height: 76px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #FF2B85 0%, #D81B60 100%);
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          justify-content: center;
+          box-shadow: 0 10px 25px rgba(255, 43, 133, 0.4);
         }
 
-        .modal-header-row h4 {
+        .shake-anim {
+          animation: phoneShake 1.4s infinite;
+        }
+
+        @keyframes phoneShake {
+          0%, 100% { transform: rotate(0deg); }
+          10%, 30%, 50%, 70% { transform: rotate(-10deg); }
+          20%, 40%, 60% { transform: rotate(10deg); }
+          80% { transform: rotate(0deg); }
+        }
+
+        .ringing-title {
+          font-size: 1.4rem;
           font-weight: 800;
-          font-size: 1.1rem;
           color: #0F172A;
+          margin-bottom: 6px;
         }
 
-        .modal-close-btn {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
+        .ringing-sub {
+          font-size: 0.92rem;
           color: #64748B;
+          margin-bottom: 20px;
         }
 
-        .bridge-icon-circle {
-          width: 64px;
-          height: 64px;
+        .virtual-caller-id-card {
+          background: #0F172A;
+          color: #FFFFFF;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 22px;
+          box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+        }
+
+        .vc-label {
+          display: block;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #94A3B8;
+          font-weight: 700;
+          margin-bottom: 6px;
+        }
+
+        .vc-number-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+
+        .vc-badge {
+          background: #FF2B85;
+          color: #FFFFFF;
+          font-size: 0.72rem;
+          font-weight: 800;
+          padding: 3px 8px;
+          border-radius: 6px;
+          letter-spacing: 0.3px;
+        }
+
+        .vc-number {
+          font-size: 1.55rem;
+          letter-spacing: 1px;
+          color: #FFFFFF;
+          font-family: monospace;
+        }
+
+        .vc-hint {
+          font-size: 0.86rem;
+          color: #CBD5E1;
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        .call-timeline-steps {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          background: #F8FAFC;
+          border: 1px solid #E2E8F0;
+          border-radius: 14px;
+          padding: 14px 16px;
+          text-align: left;
+        }
+
+        .t-step {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 0.84rem;
+          font-weight: 600;
+          color: #334155;
+        }
+
+        .t-step.active {
+          color: #0F172A;
+          font-weight: 700;
+        }
+
+        .t-step.pulse-step {
+          color: #FF2B85;
+        }
+
+        .t-step.pending {
+          color: #94A3B8;
+        }
+
+        .t-dot {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          border: 2px solid #CBD5E1;
+          margin-left: 1px;
+        }
+
+        .btn-outline-cancel {
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          color: #64748B;
+          border-radius: 12px;
+          padding: 12px 18px;
+          font-weight: 700;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .btn-outline-cancel:hover {
+          background: #F1F5F9;
+          color: #0F172A;
+          border-color: #94A3B8;
+        }
+
+        /* Connected View */
+        .call-connected-view {
+          padding: 16px 0;
+        }
+
+        .connected-icon-circle {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: #ECFDF5;
+          border: 2px solid #10B981;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px auto;
+        }
+
+        .connected-title {
+          font-size: 1.35rem;
+          font-weight: 800;
+          color: #065F46;
+          margin-bottom: 6px;
+        }
+
+        .connected-sub {
+          font-size: 0.92rem;
+          color: #475569;
+          margin-bottom: 18px;
+        }
+
+        .call-in-progress-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: #ECFDF5;
+          color: #047857;
+          border: 1px solid #A7F3D0;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 700;
+        }
+
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10B981;
+          animation: livePulse 1.5s infinite;
+        }
+
+        @keyframes livePulse {
+          0% { transform: scale(0.9); opacity: 0.7; }
+          50% { transform: scale(1.3); opacity: 1; }
+          100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        /* Ended View */
+        .call-ended-view {
+          padding: 16px 0;
+        }
+
+        .ended-icon-circle {
+          width: 76px;
+          height: 76px;
           border-radius: 50%;
           background: #ECFDF5;
           display: flex;
@@ -1400,17 +1912,20 @@ export default function PublicScanPage({ token, onNavigate }) {
           margin: 0 auto 16px auto;
         }
 
-        .modal-desc-text {
-          font-size: 0.9rem;
-          color: #64748B;
-          line-height: 1.5;
-          margin: 8px 0 20px 0;
+        /* Failed View */
+        .call-failed-view {
+          padding: 16px 0;
         }
 
-        .modal-actions-col {
+        .failed-icon-circle {
+          width: 76px;
+          height: 76px;
+          border-radius: 50%;
+          background: #FEF3C7;
           display: flex;
-          flex-direction: column;
-          gap: 10px;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px auto;
         }
       `}</style>
     </div>

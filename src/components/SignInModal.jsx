@@ -359,6 +359,10 @@ export default function SignInModal({ isOpen, onClose, onNavigate }) {
               </button>
             </div>
 
+            <p className="signin-otp-hint">
+              Check your SMS for the CarFrnd verification code (template: <em>CARFRND_OTP_VERIFY</em>).
+            </p>
+
             {error && (
               <div className="signin-error-box">
                 <span>{error}</span>
@@ -643,7 +647,21 @@ export default function SignInModal({ isOpen, onClose, onNavigate }) {
           border-radius: 20px;
           font-size: 0.85rem;
           color: #334155;
-          margin-bottom: 22px;
+          margin-bottom: 14px;
+        }
+
+        .signin-otp-hint {
+          font-size: 0.82rem;
+          color: #64748B;
+          margin: 0 0 16px 0;
+          text-align: center;
+          line-height: 1.4;
+        }
+
+        .signin-otp-hint em {
+          font-style: normal;
+          font-weight: 600;
+          color: #0F172A;
         }
 
         .signin-change-phone-btn {

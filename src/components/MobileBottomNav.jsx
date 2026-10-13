@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ShoppingBag, Truck, User } from 'lucide-react';
+import { Home, ShoppingBag, Wrench, Sparkles, User } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
@@ -66,16 +66,26 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
           <span>Home</span>
         </button>
 
-        {/* Track Order Tab */}
-        <button
-          className={`nav-tab-item ${currentView === 'track-order' ? 'active' : ''}`}
-          onClick={() => {
-            if (onNavigate) onNavigate('track-order');
-          }}
-        >
-          <Truck size={20} />
-          <span>Track Order</span>
-        </button>
+        {/* Dynamic Tab: Activate Tag if logged in, Services if guest */}
+        {isLoggedIn ? (
+          <button
+            className={`nav-tab-item ${currentView === 'activate-tag' ? 'active' : ''}`}
+            onClick={() => {
+              if (onNavigate) onNavigate('activate-tag');
+            }}
+          >
+            <Sparkles size={20} />
+            <span>Activate Tag</span>
+          </button>
+        ) : (
+          <button
+            className={`nav-tab-item ${activeTab === 'services' ? 'active' : ''}`}
+            onClick={() => scrollToSection('live-services', 'services')}
+          >
+            <Wrench size={20} />
+            <span>Services</span>
+          </button>
+        )}
 
         {/* Center Prominent Get Tag Floating Button */}
         <div className="center-fab-wrapper">

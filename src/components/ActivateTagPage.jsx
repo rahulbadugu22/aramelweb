@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Sparkles, QrCode, ShieldCheck, Car, PhoneCall, AlertTriangle, CheckCircle2, Lock, ArrowRight, Eye } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
@@ -45,21 +45,63 @@ export default function ActivateTagPage({ onNavigate }) {
     setStep(3);
   };
 
-  const handleSendOtp = () => {
-    if (ownerPhone.length >= 10) {
-      setOtpSent(true);
-      setOtp('1234'); // Pre-fill demo OTP
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
+  const handleSendOtp = async () => {
+    if (ownerPhone.length < 10) {
+      setOtpError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const res = await fetch(CUSTOMER_API.sendOtp, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: ownerPhone.trim() })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOtpSent(true);
+        setOtp('');
+      } else {
+        setOtpError(data.message || 'Failed to send OTP to mobile');
+      }
+    } catch (err) {
+      setOtpError('Network error sending OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
     }
   };
 
   const handleFinalActivation = async (e) => {
     e.preventDefault();
     if (!otpSent || otp.length !== 4) {
-      handleSendOtp();
+      setOtpError('Please enter the 4-digit OTP sent to your phone');
       return;
     }
 
     setSubmitting(true);
+    setOtpError('');
+    try {
+      // First verify the live OTP with backend/MSG91
+      const verifyRes = await fetch(CUSTOMER_API.verifyOtp, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: ownerPhone.trim(), otp: otp.trim() })
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        setOtpError(verifyData.message || 'Invalid or expired OTP');
+        setSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      setOtpError('Error verifying OTP code');
+      setSubmitting(false);
+      return;
+    }
     try {
       const res = await fetch(CUSTOMER_API.activateTag, {
         method: 'POST',
@@ -270,18 +312,18 @@ export default function ActivateTagPage({ onNavigate }) {
                         Verify OTP
                       </button>
                     ) : (
-                      <span className="otp-sent-pill">OTP Sent (1234)</span>
+                      <span className="otp-sent-pill">OTP Sent to Mobile</span>
                     )}
                   </div>
                 </div>
 
                 {otpSent && (
                   <div className="form-group">
-                    <label className="activate-label">Enter 4-Digit OTP (Use: 1234)</label>
+                    <label className="activate-label">Enter 4-Digit OTP received on SMS</label>
                     <input
                       type="text"
                       className="activate-input text-center font-mono"
-                      placeholder="1234"
+                      placeholder="• • • •"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
                       maxLength={4}

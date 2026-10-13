@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, Truck, Receipt, LogOut } from 'lucide-react';
+import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, LogOut } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
@@ -70,30 +70,17 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
             <Wrench className="nav-icon" size={16} />
             Auto Services
           </a>
-          <a
-            href="/track-order"
-            className={`nav-link ${currentView === 'track-order' ? 'active-nav' : ''}`}
-            onClick={(e) => handleLinkClick(e, 'track-order')}
-          >
-            <Truck className="nav-icon" size={16} />
-            Track Order
-          </a>
-          <a
-            href="/activate-tag"
-            className={`nav-link ${currentView === 'activate-tag' ? 'active-nav' : ''}`}
-            onClick={(e) => handleLinkClick(e, 'activate-tag')}
-          >
-            <Sparkles className="nav-icon" size={16} />
-            Activate Tag
-          </a>
-          <a
-            href="/bill"
-            className={`nav-link ${currentView === 'bill' ? 'active-nav' : ''}`}
-            onClick={(e) => handleLinkClick(e, 'bill')}
-          >
-            <Receipt className="nav-icon" size={16} />
-            Bill
-          </a>
+          {/* Activate Tag only visible after customer signs in */}
+          {isLoggedIn && (
+            <a
+              href="/activate-tag"
+              className={`nav-link ${currentView === 'activate-tag' ? 'active-nav' : ''}`}
+              onClick={(e) => handleLinkClick(e, 'activate-tag')}
+            >
+              <Sparkles className="nav-icon" size={16} />
+              Activate Tag
+            </a>
+          )}
         </nav>
 
         {/* Action CTAs */}
@@ -148,9 +135,9 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           <a href="/" onClick={(e) => handleLinkClick(e, 'home')}>Home</a>
           <a href="#app-showcase" onClick={(e) => handleLinkClick(e, 'home', 'app-showcase')}>How CarFrnd Tag Works</a>
           <a href="#live-services" onClick={(e) => handleLinkClick(e, 'home', 'live-services')}>Auto Services</a>
-          <a href="/track-order" onClick={(e) => handleLinkClick(e, 'track-order')}>Track Order</a>
-          <a href="/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
-          <a href="/bill" onClick={(e) => handleLinkClick(e, 'bill')}>Bill / Tax Invoice</a>
+          {isLoggedIn && (
+            <a href="/activate-tag" onClick={(e) => handleLinkClick(e, 'activate-tag')}>Activate Tag</a>
+          )}
           
           {isLoggedIn ? (
             <>

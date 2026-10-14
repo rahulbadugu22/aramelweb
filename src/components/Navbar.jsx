@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { QrCode, Smartphone, Sparkles, Menu, X, Wrench, User, LogOut } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { usePricing } from '../context/PricingContext';
 
-export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
+export default function Navbar({ onOpenOrderTag, onOpenAccount, onOpenScanner, onNavigate, currentView }) {
+  const { customerPrice = 450 } = usePricing();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -85,9 +87,23 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
 
         {/* Action CTAs */}
         <div className="nav-actions">
+          {/* Universal QR Scanner Button: Works for Reach Owner (Complaint) & Tag Activation */}
+          <button 
+            className="btn-scan-header" 
+            onClick={onOpenScanner}
+            title="Scan CarFrnd Tag to Reach Owner or Activate"
+            aria-label="Scan CarFrnd Tag"
+          >
+            <div className="btn-scan-icon-wrap">
+              <QrCode size={15} />
+              <span className="scan-ping-dot"></span>
+            </div>
+            <span className="btn-scan-label">Scan Tag</span>
+          </button>
+
           <button className="btn-primary btn-nav-cta" onClick={onOpenOrderTag}>
             <Sparkles size={15} />
-            <span>Get Tag ₹450</span>
+            <span>Get Tag ₹{customerPrice}</span>
           </button>
 
           {/* Dynamic Sign In / Account Buttons */}
@@ -132,6 +148,21 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
+          {/* Mobile Drawer Scan Feature Banner */}
+          <button 
+            className="mobile-drawer-scan-banner" 
+            onClick={() => { setMobileMenuOpen(false); if (onOpenScanner) onOpenScanner(); }}
+          >
+            <div className="mobile-scan-icon-bubble">
+              <QrCode size={20} color="#FF2B85" />
+            </div>
+            <div className="mobile-scan-banner-info">
+              <span className="mobile-scan-title">Scan CarFrnd Tag</span>
+              <span className="mobile-scan-sub">Reach Vehicle Owner • Activate Tag</span>
+            </div>
+            <span className="mobile-scan-badge">SCAN</span>
+          </button>
+
           <a href="/" onClick={(e) => handleLinkClick(e, 'home')}>Home</a>
           <a href="#app-showcase" onClick={(e) => handleLinkClick(e, 'home', 'app-showcase')}>How CarFrnd Tag Works</a>
           <a href="#live-services" onClick={(e) => handleLinkClick(e, 'home', 'live-services')}>Auto Services</a>
@@ -172,7 +203,7 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
 
           <div className="mobile-drawer-actions">
             <button className="btn-primary full-w" onClick={() => { setMobileMenuOpen(false); onOpenOrderTag(); }}>
-              Get Your CarFrnd Tag — ₹450
+              Get Your CarFrnd Tag — ₹{customerPrice}
             </button>
           </div>
         </div>
@@ -270,6 +301,63 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           padding: 9px 18px;
           font-size: 0.86rem;
           border-radius: 10px;
+        }
+
+        /* High-End Universal Scan Header Button */
+        .btn-scan-header {
+          background: #0F172A;
+          color: #FFFFFF;
+          border: 1.5px solid rgba(255, 43, 133, 0.45);
+          padding: 7px 15px 7px 10px;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 0.86rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12), 0 0 14px rgba(255, 43, 133, 0.15);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .btn-scan-header:hover {
+          background: #1E293B;
+          border-color: #FF2B85;
+          color: #FFFFFF;
+          box-shadow: 0 4px 18px rgba(255, 43, 133, 0.35);
+          transform: translateY(-1px);
+        }
+
+        .btn-scan-icon-wrap {
+          width: 24px;
+          height: 24px;
+          border-radius: 6px;
+          background: rgba(255, 43, 133, 0.22);
+          color: #FF2B85;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+
+        .scan-ping-dot {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #10B981;
+          box-shadow: 0 0 6px #10B981;
+          animation: scanPing 1.8s infinite;
+        }
+
+        @keyframes scanPing {
+          0% { transform: scale(0.9); opacity: 1; }
+          70% { transform: scale(1.6); opacity: 0; }
+          100% { transform: scale(0.9); opacity: 0; }
         }
 
         /* High-End Sign In Button */
@@ -404,6 +492,67 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
+        .mobile-drawer-scan-banner {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+          border: 1.5px solid rgba(255, 43, 133, 0.4);
+          padding: 12px 14px;
+          border-radius: 14px;
+          color: #FFFFFF;
+          text-align: left;
+          cursor: pointer;
+          margin-bottom: 6px;
+          box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+          transition: all 0.2s ease;
+          width: 100%;
+        }
+
+        .mobile-drawer-scan-banner:active {
+          transform: scale(0.98);
+        }
+
+        .mobile-scan-icon-bubble {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: rgba(255, 43, 133, 0.18);
+          border: 1px solid rgba(255, 43, 133, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .mobile-scan-banner-info {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+        }
+
+        .mobile-scan-title {
+          font-size: 0.92rem;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .mobile-scan-sub {
+          font-size: 0.72rem;
+          color: #94A3B8;
+          font-weight: 600;
+        }
+
+        .mobile-scan-badge {
+          background: #FF2B85;
+          color: #FFFFFF;
+          font-size: 0.65rem;
+          font-weight: 900;
+          padding: 3px 7px;
+          border-radius: 6px;
+          letter-spacing: 0.04em;
+        }
+
         .mobile-drawer a {
           color: #0F172A;
           text-decoration: none;
@@ -442,6 +591,15 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
           .btn-nav-cta {
             display: none;
           }
+          .btn-scan-header {
+            padding: 6px 11px;
+            font-size: 0.8rem;
+            gap: 6px;
+          }
+          .btn-scan-header .btn-scan-icon-wrap {
+            width: 22px;
+            height: 22px;
+          }
           .btn-signin-nav {
             padding: 6px 12px;
             font-size: 0.8rem;
@@ -459,6 +617,22 @@ export default function Navbar({ onOpenOrderTag, onOpenAccount, onNavigate, curr
             height: 52px;
             transform: scale(2.2);
             transform-origin: left center;
+          }
+        }
+
+        @media (max-width: 440px) {
+          .btn-scan-header {
+            padding: 6px 8px;
+            font-size: 0.76rem;
+            gap: 4px;
+          }
+          .btn-signin-nav {
+            padding: 6px 8px;
+            font-size: 0.76rem;
+            gap: 4px;
+          }
+          .btn-signin-nav .btn-signin-label {
+            font-size: 0.76rem;
           }
         }
       `}</style>

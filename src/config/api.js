@@ -20,6 +20,7 @@ export const PUBLIC_API = {
   parkingReasons: `${API_BASE_URL}/api/settings/parking-reasons`,
   createAlert: `${API_BASE_URL}/api/public/alerts`,
   connectMaskedCall: `${API_BASE_URL}/api/public/calls/masked-connect`,
-  callStatus: (callSid) => `${API_BASE_URL}/api/public/calls/${callSid}/status`
+  callStatus: (callSid) => `${API_BASE_URL}/api/public/calls/${callSid}/status`,
+  pricing: `${API_BASE_URL}/api/settings/pricing`
 };
 

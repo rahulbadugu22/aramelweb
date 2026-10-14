@@ -15,11 +15,14 @@ import ActivateTagPage from './components/ActivateTagPage';
 import PublicScanPage from './components/PublicScanPage';
 import SignInModal from './components/SignInModal';
 import SignOutConfirmModal from './components/SignOutConfirmModal';
+import QRScannerModal from './components/QRScannerModal';
 import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext';
+import { PricingProvider } from './context/PricingContext';
 
 function MainApp() {
   const [doorstepModalOpen, setDoorstepModalOpen] = useState(false);
   const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [scannerModalOpen, setScannerModalOpen] = useState(false);
 
   const { isSignInModalOpen, closeSignInModal, openSignInModal } = useCustomerAuth();
 
@@ -44,6 +47,7 @@ function MainApp() {
 
   const [currentView, setCurrentView] = useState(getViewFromLocation());
   const [activeScanToken, setActiveScanToken] = useState(getScanTokenFromUrl());
+  const [activeActivateTag, setActiveActivateTag] = useState(() => new URLSearchParams(window.location.search).get('tag') || '');
   const [activeOrder, setActiveOrder] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState('');
 
@@ -60,6 +64,8 @@ function MainApp() {
     const handleLocationChange = () => {
       setCurrentView(getViewFromLocation());
       setActiveScanToken(getScanTokenFromUrl());
+      const tagParam = new URLSearchParams(window.location.search).get('tag') || '';
+      if (tagParam) setActiveActivateTag(tagParam);
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -96,8 +102,8 @@ function MainApp() {
       targetPath = tok ? `/q/${tok}` : '/q';
     } else if (view === 'activate-tag') {
       const tag = typeof extraData === 'string' ? extraData : extraData?.tag || '';
+      if (tag) setActiveActivateTag(tag);
       targetPath = tag ? `/activate-tag?tag=${tag}` : '/activate-tag';
-      targetPath = '/activate-tag';
     } else if (view === 'signin' || view === 'login') {
       openSignInModal();
       return;
@@ -132,6 +138,7 @@ function MainApp() {
       <Navbar
         onOpenOrderTag={handleScrollToOrder}
         onOpenAccount={() => setAccountModalOpen(true)}
+        onOpenScanner={() => setScannerModalOpen(true)}
         onNavigate={handleNavigate}
         currentView={currentView}
       />
@@ -150,6 +157,7 @@ function MainApp() {
           />
         ) : currentView === 'activate-tag' ? (
           <ActivateTagPage
+            initialTag={activeActivateTag}
             onNavigate={handleNavigate}
           />
         ) : currentView === 'public-scan' ? (
@@ -222,6 +230,13 @@ function MainApp() {
         onNavigate={handleNavigate}
       />
 
+      {/* Universal Header QR Scanner Modal (Handles both Activate and Complaint) */}
+      <QRScannerModal
+        isOpen={scannerModalOpen}
+        onClose={() => setScannerModalOpen(false)}
+        onNavigate={handleNavigate}
+      />
+
       {/* Centered Sign Out Confirmation Popup */}
       <SignOutConfirmModal />
     </div>
@@ -231,7 +246,9 @@ function MainApp() {
 export default function App() {
   return (
     <CustomerAuthProvider>
-      <MainApp />
+      <PricingProvider>
+        <MainApp />
+      </PricingProvider>
     </CustomerAuthProvider>
   );
 }

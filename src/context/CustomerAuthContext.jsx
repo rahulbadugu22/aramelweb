@@ -88,6 +88,7 @@ export function CustomerAuthProvider({ children }) {
     <CustomerAuthContext.Provider
       value={{
         customer,
+        currentCustomer: customer,
         token,
         isLoggedIn: Boolean(customer && token),
         login,

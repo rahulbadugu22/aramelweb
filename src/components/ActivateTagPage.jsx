@@ -6,7 +6,7 @@ import { CUSTOMER_API } from '../config/api';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import QRScannerModal from './QRScannerModal';
 
-export default function ActivateTagPage({ onNavigate }) {
+export default function ActivateTagPage({ onNavigate, initialTag }) {
   const { currentCustomer } = useCustomerAuth();
 
   const getInitialTag = () => {
@@ -15,7 +15,7 @@ export default function ActivateTagPage({ onNavigate }) {
   };
 
   const [step, setStep] = useState(1);
-  const [tagId, setTagId] = useState(getInitialTag());
+  const [tagId, setTagId] = useState(initialTag || getInitialTag());
   const [vehicleNo, setVehicleNo] = useState('');
   const [vehicleType, setVehicleType] = useState('Car / SUV');
   const [vehicleModel, setVehicleModel] = useState('');
@@ -28,7 +28,15 @@ export default function ActivateTagPage({ onNavigate }) {
   const [submitting, setSubmitting] = useState(false);
   const [activatedToken, setActivatedToken] = useState('');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [scannedSuccess, setScannedSuccess] = useState(false);
+  const [scannedSuccess, setScannedSuccess] = useState(Boolean(initialTag || getInitialTag()));
+
+  useEffect(() => {
+    const t = initialTag || getInitialTag();
+    if (t) {
+      setTagId(t);
+      setScannedSuccess(true);
+    }
+  }, [initialTag]);
 
   const handleScanSuccess = (detectedCode) => {
     if (detectedCode) {
@@ -76,7 +84,7 @@ export default function ActivateTagPage({ onNavigate }) {
         setOtpSent(true);
         setOtp('');
       } else {
-        setOtpError(data.message || 'Failed to send OTP to mobile');
+        setOtpError(data.error || data.message || 'Failed to send OTP to mobile');
       }
     } catch (err) {
       setOtpError('Network error sending OTP. Please try again.');
@@ -103,7 +111,7 @@ export default function ActivateTagPage({ onNavigate }) {
       });
       const verifyData = await verifyRes.json();
       if (!verifyData.success) {
-        setOtpError(verifyData.message || 'Invalid or expired OTP');
+        setOtpError(verifyData.error || verifyData.message || 'Invalid or expired OTP');
         setSubmitting(false);
         return;
       }

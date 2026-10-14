@@ -1,8 +1,10 @@
+import { usePricing } from '../context/PricingContext';
 import React, { useState } from 'react';
 import { User, ShieldCheck, PhoneCall, CheckCircle2, LogOut, Car, AlertTriangle, Sparkles, MapPin, Mail, Phone } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNavigate }) {
+  const { customerPrice = 450 } = usePricing();
   const { customer, isLoggedIn, openSignInModal, openSignOutModal } = useCustomerAuth();
   const [callForwarding, setCallForwarding] = useState(true);
   const [towingAlerts, setTowingAlerts] = useState(true);
@@ -157,7 +159,7 @@ export default function AccountModal({ isOpen, onClose, onOpenOrderTag, onNaviga
                   if (onOpenOrderTag) onOpenOrderTag();
                 }}
               >
-                + Order Tag (₹450)
+                + Order Tag (₹{customerPrice})
               </button>
               <button
                 className="btn-logout"

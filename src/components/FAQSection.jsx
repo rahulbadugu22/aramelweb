@@ -1,7 +1,9 @@
+import { usePricing } from '../context/PricingContext';
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, Mail } from 'lucide-react';
 
 export default function FAQSection() {
+  const { customerPrice = 450, gstRate = 18, gstEnabled = true } = usePricing();
   const [openIndex, setOpenIndex] = useState(0);
 
   const faqs = [
@@ -15,7 +17,7 @@ export default function FAQSection() {
     },
     {
       q: 'Are there any monthly subscription fees for CarFrnd Tag?',
-      a: 'No. CarFrnd Tag is a one-time purchase of ₹450 including GST. There are no recurring monthly or annual subscription fees.'
+      a: `No. CarFrnd Tag is a one-time purchase of ₹${customerPrice} including ${gstEnabled ? `${gstRate}% GST` : 'taxes'}. There are no recurring monthly or annual subscription fees.`
     }
   ];
 

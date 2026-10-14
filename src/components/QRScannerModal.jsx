@@ -7,30 +7,38 @@ import {
   Flashlight, 
   RefreshCw, 
   CheckCircle2, 
-  AlertTriangle,
-  Sparkles,
-  ShieldCheck
+  AlertTriangle, 
+  Sparkles, 
+  ShieldCheck, 
+  QrCode, 
+  ArrowRight, 
+  Zap, 
+  Car, 
+  Keyboard, 
+  ShieldAlert,
+  Image as ImageIcon
 } from 'lucide-react';
+import { PUBLIC_API } from '../config/api';
 
 /**
- * Extracts pure Tag ID from raw QR text or CarFrnd URLs
+ * Extracts pure Tag ID or secure token from raw QR text or CarFrnd URLs
  * Handles:
- * - KA560100MM1234
- * - https://carfrnd.com/q/KA560100MM1234
- * - https://carfrnd.com/scan/KA560100MM1234
- * - https://carfrnd.com/activate-tag?tag=KA560100MM1234
+ * - CFD-BLR-000001
+ * - https://carfrnd.com/q/f28d2776467e1af741833e6f1b29fd5523dc66ce9b968b05
+ * - https://findowner.carfrnd.com/q/f28d2776467e1af741833e6f1b29fd5523dc66ce9b968b05
+ * - https://carfrnd.com/activate-tag?tag=CFD-BLR-000001
  * - JSON { tagId: "..." }
  */
 export function extractTagIdFromText(rawText) {
   if (!rawText || typeof rawText !== 'string') return '';
-  let str = rawText.trim();
+  let str = rawText.trim().replace(/^["']|["']$/g, '');
 
   // Try JSON
   if (str.startsWith('{') && str.endsWith('}')) {
     try {
       const parsed = JSON.parse(str);
       const val = parsed.tagId || parsed.serialNumber || parsed.secureToken || parsed.tag || parsed.id || parsed.serial;
-      if (val) return String(val).trim().toUpperCase();
+      if (val) return String(val).trim();
     } catch (e) {
       // not JSON
     }
@@ -53,20 +61,20 @@ export function extractTagIdFromText(rawText) {
         url.searchParams.get('serial') || 
         url.searchParams.get('serialNumber') ||
         url.searchParams.get('id');
-      if (qTag) return qTag.trim().toUpperCase();
+      if (qTag) return qTag.trim();
 
       // Path matching: /q/:token, /scan/:token, /tag/:token
       const pathMatch = url.pathname.match(/\/(?:q|scan|tag|tags)\/([^/?#]+)/i);
       if (pathMatch && pathMatch[1]) {
-        return decodeURIComponent(pathMatch[1]).trim().toUpperCase();
+        return decodeURIComponent(pathMatch[1]).trim();
       }
 
       // Last path segment fallback
       const segments = url.pathname.split('/').filter(Boolean);
       if (segments.length > 0) {
         const last = segments[segments.length - 1];
-        if (last && last.length <= 40 && !['q', 'scan', 'activate', 'activate-tag', 'index.html'].includes(last.toLowerCase())) {
-          return decodeURIComponent(last).trim().toUpperCase();
+        if (last && last.length <= 64 && !['q', 'scan', 'activate', 'activate-tag', 'index.html'].includes(last.toLowerCase())) {
+          return decodeURIComponent(last).trim();
         }
       }
     }
@@ -75,11 +83,20 @@ export function extractTagIdFromText(rawText) {
   }
 
   // Plain string cleanup
-  return str.replace(/["']/g, '').trim().toUpperCase();
+  const clean = str.replace(/["']/g, '').trim();
+  // If it's a 32+ character hex string, keep lowercase for PostgreSQL matching
+  if (/^[a-fA-F0-9]{32,64}$/.test(clean)) {
+    return clean.toLowerCase();
+  }
+  // If it's a serial number like CFD-BLR-000001, keep uppercase
+  if (/^[a-zA-Z]{2,4}-[a-zA-Z0-9]+-[0-9]+$/i.test(clean)) {
+    return clean.toUpperCase();
+  }
+  return clean;
 }
 
 /**
- * Play pleasant synthesizer chime on successful scan
+ * Play synthesizer chime on successful scan
  */
 function playSuccessBeep() {
   try {
@@ -94,8 +111,8 @@ function playSuccessBeep() {
     
     osc.type = 'sine';
     const now = ctx.currentTime;
-    osc.frequency.setValueAtTime(880, now); // A5
-    osc.frequency.setValueAtTime(1760, now + 0.08); // A6
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.setValueAtTime(1760, now + 0.08);
     
     gain.gain.setValueAtTime(0.18, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
@@ -103,52 +120,47 @@ function playSuccessBeep() {
     osc.start(now);
     osc.stop(now + 0.28);
   } catch (e) {
-    // Audio autoplay blocked or unsupported
+    // Audio blocked or unsupported
   }
 }
 
-export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
+export default function QRScannerModal({ 
+  isOpen, 
+  onClose, 
+  onScanSuccess, 
+  onNavigate,
+  defaultGoal = 'auto' 
+}) {
+  const [selectedGoal, setSelectedGoal] = useState(defaultGoal);
+  const [inputTab, setInputTab] = useState('camera'); // 'camera' | 'upload' | 'manual'
+  const [manualCodeInput, setManualCodeInput] = useState('');
+  const [manualInputError, setManualInputError] = useState('');
+
+  // Camera stream state
   const [cameras, setCameras] = useState([]);
   const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
   const [scannerStatus, setScannerStatus] = useState('initializing'); // 'initializing' | 'scanning' | 'detected' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
-  const [detectedTag, setDetectedTag] = useState('');
   const [torchSupported, setTorchSupported] = useState(false);
   const [isTorchOn, setIsTorchOn] = useState(false);
+
+  // File upload state
   const [isFileScanning, setIsFileScanning] = useState(false);
+  const [uploadedPreview, setUploadedPreview] = useState(null);
+  const [fileScanError, setFileScanError] = useState('');
+
+  // Resolution state
+  const [resolving, setResolving] = useState(false);
+  const [detectedTag, setDetectedTag] = useState('');
+  const [resolutionResult, setResolutionResult] = useState(null);
 
   const scannerInstanceRef = useRef(null);
   const isStoppingRef = useRef(false);
   const fileInputRef = useRef(null);
-  const containerId = 'carfrnd-qr-scanner-viewport';
+  const cameraContainerId = 'carfrnd-qr-camera-viewport';
+  const fileContainerId = 'carfrnd-qr-file-helper-viewport';
 
-  // Handle detection
-  const handleDecodedCode = (decodedText) => {
-    if (!decodedText || scannerStatus === 'detected') return;
-    
-    const extracted = extractTagIdFromText(decodedText);
-    if (!extracted) return;
-
-    setScannerStatus('detected');
-    setDetectedTag(extracted);
-
-    // Audio chime & haptic feedback
-    playSuccessBeep();
-    if (navigator.vibrate) {
-      try { navigator.vibrate([50, 40, 100]); } catch (e) {}
-    }
-
-    // Stop scanner video
-    stopScanner();
-
-    // Notify parent after brief confirmation pause
-    setTimeout(() => {
-      onScanSuccess(extracted);
-      onClose();
-    }, 700);
-  };
-
-  // Safely stop scanner
+  // Safely stop live camera
   const stopScanner = async () => {
     const scanner = scannerInstanceRef.current;
     if (!scanner || isStoppingRef.current) return;
@@ -169,25 +181,24 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     }
   };
 
-  // Initialize and start camera
+  // Start live camera
   const startCamera = async (cameraIndex = 0) => {
     try {
       await stopScanner();
       setScannerStatus('initializing');
       setErrorMessage('');
 
-      // Enumerate available video input devices
       let availableDevices = cameras;
       if (!availableDevices || availableDevices.length === 0) {
         try {
           availableDevices = await Html5Qrcode.getCameras();
           setCameras(availableDevices || []);
         } catch (camErr) {
-          console.warn('Could not list cameras directly:', camErr);
+          console.warn('Could not enumerate cameras:', camErr);
         }
       }
 
-      const html5QrCode = new Html5Qrcode(containerId, { verbose: false });
+      const html5QrCode = new Html5Qrcode(cameraContainerId, { verbose: false });
       scannerInstanceRef.current = html5QrCode;
 
       const qrboxFunction = (viewfinderWidth, viewfinderHeight) => {
@@ -202,8 +213,6 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         aspectRatio: 1.0
       };
 
-      // Camera selection strategy:
-      // If cameras array is available, use camera id. Otherwise, use facingMode: environment.
       let cameraSpec = { facingMode: 'environment' };
       if (availableDevices && availableDevices.length > 0) {
         const idx = cameraIndex % availableDevices.length;
@@ -216,14 +225,11 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         (decodedText) => {
           handleDecodedCode(decodedText);
         },
-        () => {
-          // Frame scanned without QR - normal loop
-        }
+        () => {}
       );
 
       setScannerStatus('scanning');
 
-      // Check torch capability
       try {
         const capabilities = html5QrCode.getRunningTrackCapabilities?.();
         if (capabilities && 'torch' in capabilities) {
@@ -236,21 +242,21 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
       }
 
     } catch (err) {
-      console.error('QR Scanner Start Error:', err);
+      console.error('Camera Start Error:', err);
       setScannerStatus('error');
       
       const errStr = String(err?.message || err || '');
       if (errStr.includes('NotAllowedError') || errStr.includes('Permission')) {
-        setErrorMessage('Camera access was denied. Please allow camera permissions in your browser or upload an image below.');
+        setErrorMessage('Camera access was denied. Please allow camera permissions in your browser or enter Tag ID manually.');
       } else if (errStr.includes('NotFoundError') || errStr.includes('No cameras')) {
-        setErrorMessage('No camera was detected on this device. You can upload an image of your QR decal instead.');
+        setErrorMessage('No camera was detected. You can upload an image or type the Tag ID manually.');
       } else {
-        setErrorMessage('Could not open camera. You can upload a photo of your QR code or enter the Tag ID manually.');
+        setErrorMessage('Could not open camera stream. You can upload a photo or type the Tag ID manually.');
       }
     }
   };
 
-  // Flip / Switch camera
+  // Flip camera
   const handleSwitchCamera = async () => {
     if (cameras.length <= 1) return;
     const nextIdx = (currentCameraIndex + 1) % cameras.length;
@@ -258,7 +264,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     await startCamera(nextIdx);
   };
 
-  // Toggle flashlight / torch
+  // Toggle torch
   const handleToggleTorch = async () => {
     const scanner = scannerInstanceRef.current;
     if (!scanner || !scanner.isScanning) return;
@@ -273,29 +279,39 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     }
   };
 
-  // File upload fallback
+  // File upload scan with preview and dedicated container
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsFileScanning(true);
+    setFileScanError('');
     setErrorMessage('');
-    
+
+    // Create thumbnail preview
+    const reader = new FileReader();
+    reader.onload = (uploadEvt) => {
+      setUploadedPreview(uploadEvt.target?.result || null);
+    };
+    reader.readAsDataURL(file);
+
     try {
       await stopScanner();
-      
-      const fileScanner = new Html5Qrcode(containerId, { verbose: false });
+
+      // Use dedicated permanent DOM container for file decoding
+      const fileScanner = new Html5Qrcode(fileContainerId, { verbose: false });
       const decodedResult = await fileScanner.scanFile(file, true);
       
+      try { await fileScanner.clear(); } catch (cErr) {}
+
       if (decodedResult) {
         handleDecodedCode(decodedResult);
       } else {
-        throw new Error('No QR code detected');
+        throw new Error('No QR code detected in this photo');
       }
     } catch (err) {
       console.warn('File scan error:', err);
-      setErrorMessage('Could not find a valid CarFrnd QR code in that image. Please try a clearer photo or enter your Tag ID manually.');
-      setScannerStatus('error');
+      setFileScanError('Could not find a valid CarFrnd QR code in that photo. Please try a clearer, brighter photo or enter the Tag ID in the "Enter Tag ID" tab.');
     } finally {
       setIsFileScanning(false);
       if (fileInputRef.current) {
@@ -304,12 +320,159 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     }
   };
 
-  // Lifecycle
+  // Resolve Tag based on selected Goal
+  const resolveTag = async (tagCode, goalToUse = selectedGoal) => {
+    const clean = extractTagIdFromText(tagCode);
+    if (!clean) {
+      setManualInputError('Please enter a valid Tag ID or scan a CarFrnd QR code.');
+      return;
+    }
+
+    setDetectedTag(clean);
+    setResolving(true);
+    setResolutionResult(null);
+
+    // Audio chime & haptics
+    playSuccessBeep();
+    if (navigator.vibrate) {
+      try { navigator.vibrate([50, 40, 100]); } catch (e) {}
+    }
+
+    // Stop camera video stream
+    await stopScanner();
+
+    // 1. Direct callback override (e.g. from ActivateTagPage step 1)
+    if (onScanSuccess) {
+      setTimeout(() => {
+        onScanSuccess(clean);
+        onClose();
+      }, 500);
+      return;
+    }
+
+    // 2. Explicit User Selection: 'complaint' / 'Reach Owner'
+    // Immediately navigates to public-scan (/q/:token) where last 4 digits verification gate, call, and SMS alerts live!
+    if (goalToUse === 'complaint') {
+      setResolutionResult({
+        status: 'activated',
+        tagId: clean,
+        message: 'Opening Vehicle Owner Reach-Out & Assistance Portal...'
+      });
+      setTimeout(() => {
+        if (onNavigate) onNavigate('public-scan', clean);
+        onClose();
+      }, 500);
+      return;
+    }
+
+    // 3. Explicit User Selection: 'activate'
+    if (goalToUse === 'activate') {
+      setResolutionResult({
+        status: 'unassigned',
+        tagId: clean,
+        message: 'Opening Tag Activation Form...'
+      });
+      setTimeout(() => {
+        if (onNavigate) onNavigate('activate-tag', { tag: clean });
+        onClose();
+      }, 500);
+      return;
+    }
+
+    // 4. Auto-Detect: Check live tag status with backend
+    try {
+      const res = await fetch(PUBLIC_API.scanTag(clean));
+      const data = await res.json().catch(() => null);
+
+      if (data && data.valid && data.status === 'ACTIVATED') {
+        // Tag is ACTIVATED -> Bystander reach-out / complaint flow
+        setResolutionResult({
+          status: 'activated',
+          tagId: clean,
+          vehicle: data.vehicle,
+          message: 'Active Vehicle Tag Found! Opening Assistance & Contact Portal...'
+        });
+        setTimeout(() => {
+          if (onNavigate) onNavigate('public-scan', clean);
+          onClose();
+        }, 600);
+      } else if (data && (data.status === 'ASSIGNED' || data.status === 'UNASSIGNED')) {
+        // Tag is UNREGISTERED -> Activation flow
+        const tagToUse = data.serialNumber || clean;
+        setResolutionResult({
+          status: 'unassigned',
+          tagId: tagToUse,
+          message: 'New Unregistered Tag! Opening Tag Activation Form...'
+        });
+        setTimeout(() => {
+          if (onNavigate) onNavigate('activate-tag', { tag: tagToUse });
+          onClose();
+        }, 600);
+      } else {
+        // Ambiguous / Not found -> User decision
+        setResolutionResult({
+          status: 'ambiguous',
+          tagId: clean,
+          message: 'Tag code detected. Please choose your goal below:'
+        });
+      }
+    } catch (netErr) {
+      console.warn('Error checking tag status:', netErr);
+      // Offline fallback -> User decision
+      setResolutionResult({
+        status: 'ambiguous',
+        tagId: clean,
+        message: 'Tag code detected. Please choose your goal below:'
+      });
+    } finally {
+      setResolving(false);
+    }
+  };
+
+  // Handle Decoded QR Text
+  const handleDecodedCode = (decodedText) => {
+    if (!decodedText || resolving) return;
+    resolveTag(decodedText);
+  };
+
+  // Handle Manual Code Submit
+  const handleManualSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!manualCodeInput.trim()) {
+      setManualInputError('Please enter a Tag ID (e.g. CFD-BLR-000001)');
+      return;
+    }
+    setManualInputError('');
+    resolveTag(manualCodeInput.trim());
+  };
+
+  // Handle Tab Switch
+  const handleTabChange = (newTab) => {
+    setInputTab(newTab);
+    setErrorMessage('');
+    setManualInputError('');
+    setFileScanError('');
+    if (newTab === 'camera') {
+      setTimeout(() => startCamera(currentCameraIndex), 100);
+    } else {
+      stopScanner();
+    }
+  };
+
+  // Modal Lifecycle
   useEffect(() => {
     if (isOpen) {
+      setSelectedGoal(defaultGoal);
+      setInputTab('camera');
       setDetectedTag('');
+      setResolutionResult(null);
+      setResolving(false);
+      setManualCodeInput('');
+      setManualInputError('');
+      setUploadedPreview(null);
+      setFileScanError('');
       setIsTorchOn(false);
-      // Short delay to ensure container DOM element is rendered
+
       const timer = setTimeout(() => {
         startCamera(0);
       }, 150);
@@ -317,7 +480,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     } else {
       stopScanner();
     }
-  }, [isOpen]);
+  }, [isOpen, defaultGoal]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -347,15 +510,18 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         role="dialog"
         aria-modal="true"
       >
-        {/* Header */}
+        {/* Permanent hidden container for file decoding */}
+        <div id={fileContainerId} style={{ display: 'none' }}></div>
+
+        {/* Modal Top Header */}
         <div className="qr-modal-header">
           <div className="qr-modal-title-wrap">
             <div className="qr-modal-badge">
-              <Camera size={14} color="#FF2B85" />
-              <span>Decal QR Scanner</span>
+              <QrCode size={13} color="#FF2B85" />
+              <span>Universal CarFrnd Scanner</span>
             </div>
-            <h3>Scan CarFrnd Tag QR</h3>
-            <p>Align the QR code on your windshield sticker within the frame.</p>
+            <h3>Scan CarFrnd Tag</h3>
+            <p>One scan connects you to vehicle owners or activates your newly purchased tag.</p>
           </div>
 
           <button 
@@ -368,144 +534,386 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           </button>
         </div>
 
-        {/* Viewport Box */}
+        {/* Dual Goal Selector Bar (Works for Activate & Complaint) */}
+        {!onScanSuccess && !resolutionResult && (
+          <div className="qr-goal-selector-bar">
+            <span className="qr-goal-label">Goal:</span>
+            <div className="qr-goal-pills">
+              <button
+                type="button"
+                className={`qr-goal-pill ${selectedGoal === 'auto' ? 'active' : ''}`}
+                onClick={() => setSelectedGoal('auto')}
+                title="Automatically detect whether tag is already registered or needs activation"
+              >
+                <Zap size={13} />
+                <span>Auto-Detect</span>
+              </button>
+              <button
+                type="button"
+                className={`qr-goal-pill ${selectedGoal === 'complaint' ? 'active' : ''}`}
+                onClick={() => setSelectedGoal('complaint')}
+                title="Report parking issue, blocked vehicle, alert or call vehicle owner"
+              >
+                <ShieldAlert size={13} />
+                <span>Reach Owner</span>
+              </button>
+              <button
+                type="button"
+                className={`qr-goal-pill ${selectedGoal === 'activate' ? 'active' : ''}`}
+                onClick={() => setSelectedGoal('activate')}
+                title="Activate and register a newly purchased CarFrnd sticker"
+              >
+                <Sparkles size={13} />
+                <span>Activate Tag</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Input Method Navigation Tabs */}
+        {!resolutionResult && (
+          <div className="qr-method-tabs">
+            <button 
+              type="button" 
+              className={`qr-method-tab ${inputTab === 'camera' ? 'active' : ''}`}
+              onClick={() => handleTabChange('camera')}
+            >
+              <Camera size={15} />
+              <span>Camera</span>
+            </button>
+            <button 
+              type="button" 
+              className={`qr-method-tab ${inputTab === 'upload' ? 'active' : ''}`}
+              onClick={() => handleTabChange('upload')}
+            >
+              <Upload size={15} />
+              <span>Upload Photo</span>
+            </button>
+            <button 
+              type="button" 
+              className={`qr-method-tab ${inputTab === 'manual' ? 'active' : ''}`}
+              onClick={() => handleTabChange('manual')}
+            >
+              <Keyboard size={15} />
+              <span>Enter Tag ID</span>
+            </button>
+          </div>
+        )}
+
+        {/* Main Viewport Content Area */}
         <div className="qr-scanner-viewport-box">
-          <div id={containerId} className="qr-html5-container"></div>
+          {/* Permanent Camera Container (always mounted, hidden when not in camera tab) */}
+          <div 
+            id={cameraContainerId} 
+            className="qr-html5-container"
+            style={{ display: (inputTab === 'camera' && !resolutionResult) ? 'block' : 'none' }}
+          ></div>
 
-          {/* Holographic HUD Overlay */}
-          {scannerStatus === 'scanning' && (
-            <div className="qr-hud-overlay">
-              <div className="qr-hud-frame">
-                {/* 4 Corner brackets */}
-                <div className="corner corner-tl"></div>
-                <div className="corner corner-tr"></div>
-                <div className="corner corner-bl"></div>
-                <div className="corner corner-br"></div>
+          {/* TAB 1: Camera HUD Overlay & Loaders */}
+          {inputTab === 'camera' && !resolutionResult && (
+            <>
+              {scannerStatus === 'scanning' && !resolving && (
+                <div className="qr-hud-overlay">
+                  <div className="qr-hud-frame">
+                    <div className="corner corner-tl"></div>
+                    <div className="corner corner-tr"></div>
+                    <div className="corner corner-bl"></div>
+                    <div className="corner corner-br"></div>
+                    <div className="qr-laser-line"></div>
+                    <div className="qr-target-reticle"></div>
+                  </div>
 
-                {/* Laser scan line */}
-                <div className="qr-laser-line"></div>
-                
-                {/* Center target reticle */}
-                <div className="qr-target-reticle"></div>
+                  <div className="qr-hud-hint">
+                    <span>Align windshield QR code within frame</span>
+                  </div>
+                </div>
+              )}
+
+              {scannerStatus === 'initializing' && !resolving && (
+                <div className="qr-viewport-loading">
+                  <div className="qr-spin-ring"></div>
+                  <p>Initializing Camera...</p>
+                </div>
+              )}
+
+              {scannerStatus === 'error' && !resolving && (
+                <div className="qr-viewport-error">
+                  <div className="qr-error-icon-box">
+                    <AlertTriangle size={30} color="#F59E0B" />
+                  </div>
+                  <h4>Camera Access Needed</h4>
+                  <p>{errorMessage || 'Unable to open camera stream.'}</p>
+
+                  <div className="qr-error-actions">
+                    <button 
+                      type="button" 
+                      className="qr-btn-retry" 
+                      onClick={() => startCamera(currentCameraIndex)}
+                    >
+                      <RefreshCw size={14} /> Try Again
+                    </button>
+                    <button 
+                      type="button" 
+                      className="qr-btn-switch-tab" 
+                      onClick={() => handleTabChange('manual')}
+                    >
+                      <Keyboard size={14} /> Enter Tag Manually
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* TAB 2: Upload Photo */}
+          {inputTab === 'upload' && !resolutionResult && (
+            <div className="qr-upload-tab-pane">
+              <div 
+                className={`qr-upload-dropzone ${isFileScanning ? 'scanning' : ''}`} 
+                onClick={() => !isFileScanning && fileInputRef.current?.click()}
+              >
+                {uploadedPreview && isFileScanning ? (
+                  <div className="qr-upload-preview-wrap">
+                    <img src={uploadedPreview} alt="Uploaded QR" className="qr-preview-img" />
+                    <div className="qr-preview-scanning-overlay">
+                      <div className="qr-spin-ring"></div>
+                      <span>Scanning QR Code...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="qr-upload-icon-circle">
+                      <Upload size={28} color="#FF2B85" />
+                    </div>
+                    <h4>Upload QR Photo</h4>
+                    <p>Select a clear photo or screenshot containing the CarFrnd QR sticker.</p>
+                    <button type="button" className="btn-browse-file" disabled={isFileScanning}>
+                      {isFileScanning ? 'Scanning Image...' : 'Choose Photo'}
+                    </button>
+                  </>
+                )}
               </div>
 
-              <div className="qr-hud-hint">
-                <span>Hold steady • QR code will auto-detect</span>
-              </div>
+              {fileScanError && (
+                <div className="qr-file-err-banner">
+                  <AlertTriangle size={16} color="#F59E0B" />
+                  <div className="qr-file-err-text">
+                    <span>{fileScanError}</span>
+                    <button 
+                      type="button" 
+                      className="qr-btn-err-link"
+                      onClick={() => handleTabChange('manual')}
+                    >
+                      Enter Tag ID Manually →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Initializing loader */}
-          {scannerStatus === 'initializing' && (
-            <div className="qr-viewport-loading">
+          {/* TAB 3: Enter Tag ID Manually */}
+          {inputTab === 'manual' && !resolutionResult && (
+            <div className="qr-manual-tab-pane">
+              <form onSubmit={handleManualSubmit} className="qr-manual-form">
+                <div className="qr-manual-icon-bubble">
+                  <Keyboard size={24} color="#FF2B85" />
+                </div>
+                <h4>Enter Vehicle Tag ID</h4>
+                <p>Type the Serial Number or Tag ID printed on the windshield sticker.</p>
+
+                <div className="qr-manual-input-wrap">
+                  <input
+                    type="text"
+                    className="qr-manual-input"
+                    placeholder="e.g. CFD-BLR-000001 or f28d2..."
+                    value={manualCodeInput}
+                    onChange={(e) => {
+                      setManualCodeInput(e.target.value);
+                      setManualInputError('');
+                    }}
+                    autoFocus
+                  />
+                  <button type="submit" className="qr-manual-submit-btn" disabled={resolving}>
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+
+                {manualInputError && (
+                  <div className="qr-manual-err-text">
+                    <AlertTriangle size={13} />
+                    <span>{manualInputError}</span>
+                  </div>
+                )}
+
+                <div className="qr-manual-hints">
+                  <span>💡 Examples: CFD-BLR-000001, CFD-MUM-000042, or your printed tag code</span>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Resolving / Progress Loader */}
+          {resolving && (
+            <div className="qr-viewport-resolving">
               <div className="qr-spin-ring"></div>
-              <p>Starting Camera...</p>
+              <h4>Analyzing Tag: <span className="font-mono">{detectedTag}</span></h4>
+              <p>Verifying vehicle status and routing...</p>
             </div>
           )}
 
-          {/* Success overlay banner */}
-          {scannerStatus === 'detected' && (
-            <div className="qr-viewport-detected">
+          {/* Resolution Result Banner: Activated (Complaint) */}
+          {resolutionResult && resolutionResult.status === 'activated' && (
+            <div className="qr-viewport-detected activated">
               <div className="qr-detected-bubble">
-                <CheckCircle2 size={42} color="#10B981" />
-                <h4>Tag ID Detected!</h4>
-                <div className="qr-detected-tag-code font-mono">{detectedTag}</div>
-                <p>Auto-filling and returning to form...</p>
+                <div className="qr-detected-icon-circle green">
+                  <CheckCircle2 size={36} color="#10B981" />
+                </div>
+                <h4>Active Vehicle Tag!</h4>
+                <div className="qr-detected-tag-code font-mono">{resolutionResult.tagId}</div>
+                {resolutionResult.vehicle && (
+                  <div className="qr-detected-vehicle-info">
+                    <Car size={16} />
+                    <span>{resolutionResult.vehicle.makeModel || 'Registered Vehicle'} • {resolutionResult.vehicle.maskedReg || ''}</span>
+                  </div>
+                )}
+                <p className="qr-routing-hint">{resolutionResult.message || 'Directing to Owner Reach-Out & Assistance Portal...'}</p>
+                <div className="qr-auto-forward-bar">
+                  <div className="qr-auto-forward-progress"></div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Error / Permission Blocked View */}
-          {scannerStatus === 'error' && (
-            <div className="qr-viewport-error">
-              <div className="qr-error-icon-box">
-                <AlertTriangle size={32} color="#F59E0B" />
+          {/* Resolution Result Banner: Unassigned (Activate) */}
+          {resolutionResult && resolutionResult.status === 'unassigned' && (
+            <div className="qr-viewport-detected unassigned">
+              <div className="qr-detected-bubble">
+                <div className="qr-detected-icon-circle purple">
+                  <Sparkles size={36} color="#A855F7" />
+                </div>
+                <h4>New Unregistered Tag!</h4>
+                <div className="qr-detected-tag-code font-mono">{resolutionResult.tagId}</div>
+                <p className="qr-routing-hint">{resolutionResult.message || 'Directing to Tag Activation Form...'}</p>
+                <div className="qr-auto-forward-bar">
+                  <div className="qr-auto-forward-progress"></div>
+                </div>
               </div>
-              <h4>Camera Not Accessible</h4>
-              <p>{errorMessage || 'Unable to start camera stream on this browser.'}</p>
+            </div>
+          )}
 
-              <div className="qr-error-actions">
-                <button 
-                  type="button" 
-                  className="qr-btn-retry" 
-                  onClick={() => startCamera(currentCameraIndex)}
+          {/* Resolution Result Banner: Ambiguous / User Choice */}
+          {resolutionResult && resolutionResult.status === 'ambiguous' && (
+            <div className="qr-viewport-choice">
+              <div className="qr-choice-bubble">
+                <div className="qr-detected-tag-code font-mono">{resolutionResult.tagId}</div>
+                <h4>Tag Code Captured</h4>
+                <p>What would you like to do with this CarFrnd Tag?</p>
+
+                <div className="qr-choice-buttons">
+                  <button
+                    type="button"
+                    className="qr-btn-choice-reach"
+                    onClick={() => {
+                      if (onNavigate) onNavigate('public-scan', resolutionResult.tagId);
+                      onClose();
+                    }}
+                  >
+                    <ShieldAlert size={18} />
+                    <div className="qr-choice-btn-text">
+                      <span className="choice-btn-main">Reach Owner / Complaint</span>
+                      <span className="choice-btn-sub">Verify last 4 digits, call owner, or send SMS alert</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="qr-btn-choice-activate"
+                    onClick={() => {
+                      if (onNavigate) onNavigate('activate-tag', { tag: resolutionResult.tagId });
+                      onClose();
+                    }}
+                  >
+                    <Sparkles size={18} />
+                    <div className="qr-choice-btn-text">
+                      <span className="choice-btn-main">Activate This New Tag</span>
+                      <span className="choice-btn-sub">Register vehicle details & link phone</span>
+                    </div>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="qr-btn-rescan"
+                  onClick={() => {
+                    setResolutionResult(null);
+                    setDetectedTag('');
+                    setInputTab('camera');
+                    startCamera(0);
+                  }}
                 >
-                  <RefreshCw size={14} /> Try Again
-                </button>
-                <button 
-                  type="button" 
-                  className="qr-btn-upload-direct" 
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload size={14} /> Upload QR Photo
+                  <RefreshCw size={13} />
+                  <span>Scan Different Tag</span>
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Action Controls Bar */}
-        <div className="qr-controls-bar">
-          {/* Torch toggle if supported */}
-          {torchSupported && scannerStatus === 'scanning' && (
-            <button 
-              type="button" 
-              className={`qr-control-btn ${isTorchOn ? 'active' : ''}`}
-              onClick={handleToggleTorch}
-              title="Toggle Flashlight"
-            >
-              <Flashlight size={16} />
-              <span>{isTorchOn ? 'Flash Off' : 'Flash On'}</span>
-            </button>
-          )}
+        {/* Action Controls Bar for Camera Mode */}
+        {inputTab === 'camera' && !resolutionResult && (
+          <div className="qr-controls-bar">
+            {torchSupported && scannerStatus === 'scanning' && (
+              <button 
+                type="button" 
+                className={`qr-control-btn ${isTorchOn ? 'active' : ''}`}
+                onClick={handleToggleTorch}
+                title="Toggle Flashlight"
+              >
+                <Flashlight size={16} />
+                <span>{isTorchOn ? 'Flash Off' : 'Flash On'}</span>
+              </button>
+            )}
 
-          {/* Flip camera if multiple cameras */}
-          {cameras.length > 1 && scannerStatus === 'scanning' && (
+            {cameras.length > 1 && scannerStatus === 'scanning' && (
+              <button 
+                type="button" 
+                className="qr-control-btn"
+                onClick={handleSwitchCamera}
+                title="Flip Camera"
+              >
+                <RefreshCw size={16} />
+                <span>Flip Camera</span>
+              </button>
+            )}
+
             <button 
               type="button" 
               className="qr-control-btn"
-              onClick={handleSwitchCamera}
-              title="Flip Camera"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isFileScanning}
+              title="Upload photo of QR code"
             >
-              <RefreshCw size={16} />
-              <span>Flip Camera</span>
+              <Upload size={16} />
+              <span>{isFileScanning ? 'Scanning...' : 'Upload Image'}</span>
             </button>
-          )}
+          </div>
+        )}
 
-          {/* Upload photo fallback */}
-          <button 
-            type="button" 
-            className="qr-control-btn"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isFileScanning}
-            title="Upload photo of QR code"
-          >
-            <Upload size={16} />
-            <span>{isFileScanning ? 'Scanning File...' : 'Upload Photo'}</span>
-          </button>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileSelected} 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+        />
 
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileSelected} 
-            accept="image/*" 
-            style={{ display: 'none' }} 
-          />
-        </div>
-
-        {/* Footer info & Manual Fallback */}
+        {/* Modal Footer Info */}
         <div className="qr-modal-footer">
           <div className="qr-security-note">
-            <ShieldCheck size={13} color="#059669" />
-            <span>Camera stream processed privately in browser — no imagery stored.</span>
+            <ShieldCheck size={13} color="#10B981" />
+            <span>Encrypted QR processing • No imagery or camera feed is stored.</span>
           </div>
-          <button 
-            type="button" 
-            className="qr-btn-enter-manually" 
-            onClick={onClose}
-          >
-            Enter Tag ID Manually
-          </button>
         </div>
       </div>
 
@@ -513,9 +921,9 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         .qr-modal-backdrop {
           position: fixed;
           inset: 0;
-          background: rgba(15, 23, 42, 0.78);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
+          background: rgba(15, 23, 42, 0.82);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -531,12 +939,12 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
 
         .qr-modal-card {
           background: #0F172A;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 22px;
           width: 100%;
           max-width: 480px;
           color: #F8FAFC;
-          box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 43, 133, 0.15);
+          box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 43, 133, 0.16);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -552,7 +960,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          padding: 20px 22px 14px 22px;
+          padding: 18px 20px 12px 20px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
@@ -561,7 +969,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           align-items: center;
           gap: 6px;
           background: rgba(255, 43, 133, 0.15);
-          border: 1px solid rgba(255, 43, 133, 0.3);
+          border: 1px solid rgba(255, 43, 133, 0.35);
           color: #FF2B85;
           padding: 3px 10px;
           border-radius: 12px;
@@ -575,14 +983,14 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           font-size: 1.25rem;
           font-weight: 800;
           color: #FFFFFF;
-          margin: 0 0 4px 0;
+          margin: 0 0 3px 0;
         }
 
         .qr-modal-title-wrap p {
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           color: #94A3B8;
           margin: 0;
-          line-height: 1.4;
+          line-height: 1.35;
         }
 
         .qr-modal-close-btn {
@@ -597,6 +1005,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           justify-content: center;
           cursor: pointer;
           transition: all 0.2s;
+          flex-shrink: 0;
         }
 
         .qr-modal-close-btn:hover {
@@ -604,12 +1013,99 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           color: #FFFFFF;
         }
 
+        /* Goal Selector Bar */
+        .qr-goal-selector-bar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 18px;
+          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .qr-goal-label {
+          font-size: 0.74rem;
+          font-weight: 700;
+          color: #64748B;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .qr-goal-pills {
+          display: flex;
+          gap: 6px;
+          flex: 1;
+        }
+
+        .qr-goal-pill {
+          flex: 1;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #94A3B8;
+          padding: 5px 8px;
+          border-radius: 8px;
+          font-size: 0.74rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+          transition: all 0.2s ease;
+        }
+
+        .qr-goal-pill:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
+        }
+
+        .qr-goal-pill.active {
+          background: rgba(255, 43, 133, 0.18);
+          border-color: #FF2B85;
+          color: #FFFFFF;
+          box-shadow: 0 0 10px rgba(255, 43, 133, 0.25);
+        }
+
+        /* Method Tabs */
+        .qr-method-tabs {
+          display: flex;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          background: #090D16;
+        }
+
+        .qr-method-tab {
+          flex: 1;
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          color: #94A3B8;
+          padding: 10px 0;
+          font-size: 0.8rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: all 0.2s;
+        }
+
+        .qr-method-tab:hover {
+          color: #FFFFFF;
+        }
+
+        .qr-method-tab.active {
+          color: #FF2B85;
+          border-bottom-color: #FF2B85;
+          background: rgba(255, 43, 133, 0.05);
+        }
+
         /* Viewport Box */
         .qr-scanner-viewport-box {
           position: relative;
           background: #020617;
-          min-height: 320px;
-          max-height: 380px;
+          min-height: 310px;
+          max-height: 360px;
           overflow: hidden;
           display: flex;
           align-items: center;
@@ -628,11 +1124,10 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           border-radius: 0;
         }
 
-        /* Hide unwanted default html5-qrcode controls and banners */
-        #carfrnd-qr-scanner-viewport__scan_region {
+        #carfrnd-qr-camera-viewport__scan_region {
           background: transparent !important;
         }
-        #carfrnd-qr-scanner-viewport img {
+        #carfrnd-qr-camera-viewport img {
           display: none !important;
         }
 
@@ -650,11 +1145,11 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
 
         .qr-hud-frame {
           position: relative;
-          width: 220px;
-          height: 220px;
+          width: 210px;
+          height: 210px;
           border: 1px dashed rgba(255, 43, 133, 0.4);
           border-radius: 16px;
-          box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.45);
+          box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.48);
         }
 
         .corner {
@@ -720,19 +1215,254 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         }
 
         .qr-hud-hint {
-          margin-top: 18px;
-          background: rgba(15, 23, 42, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          margin-top: 16px;
+          background: rgba(15, 23, 42, 0.88);
+          border: 1px solid rgba(255, 255, 255, 0.15);
           padding: 6px 14px;
           border-radius: 20px;
-          font-size: 0.75rem;
+          font-size: 0.74rem;
           color: #E2E8F0;
           font-weight: 600;
           backdrop-filter: blur(4px);
         }
 
-        /* Loading */
-        .qr-viewport-loading {
+        /* Upload Tab */
+        .qr-upload-tab-pane {
+          width: 100%;
+          height: 100%;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+        }
+
+        .qr-upload-dropzone {
+          border: 2px dashed rgba(255, 43, 133, 0.35);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.02);
+          width: 100%;
+          max-width: 360px;
+          padding: 26px 18px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .qr-upload-dropzone:hover {
+          border-color: #FF2B85;
+          background: rgba(255, 43, 133, 0.04);
+        }
+
+        .qr-upload-icon-circle {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: rgba(255, 43, 133, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 10px auto;
+        }
+
+        .qr-upload-dropzone h4 {
+          font-size: 1.05rem;
+          font-weight: 800;
+          color: #FFFFFF;
+          margin: 0 0 6px 0;
+        }
+
+        .qr-upload-dropzone p {
+          font-size: 0.78rem;
+          color: #94A3B8;
+          margin: 0 0 14px 0;
+        }
+
+        .btn-browse-file {
+          background: #FF2B85;
+          color: #FFFFFF;
+          border: none;
+          padding: 8px 18px;
+          border-radius: 10px;
+          font-size: 0.82rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .btn-browse-file:hover {
+          background: #E01E72;
+        }
+
+        .qr-upload-preview-wrap {
+          position: relative;
+          width: 140px;
+          height: 140px;
+          margin: 0 auto;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 2px solid #FF2B85;
+        }
+
+        .qr-preview-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .qr-preview-scanning-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.85);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          color: #FFFFFF;
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+
+        .qr-file-err-banner {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          background: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+          padding: 10px 14px;
+          border-radius: 10px;
+          max-width: 380px;
+          text-align: left;
+        }
+
+        .qr-file-err-text {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 0.76rem;
+          color: #F8FAFC;
+          line-height: 1.35;
+        }
+
+        .qr-btn-err-link {
+          background: none;
+          border: none;
+          color: #FF2B85;
+          font-size: 0.76rem;
+          font-weight: 800;
+          cursor: pointer;
+          padding: 0;
+          text-align: left;
+          text-decoration: underline;
+        }
+
+        /* Manual Tab */
+        .qr-manual-tab-pane {
+          width: 100%;
+          height: 100%;
+          padding: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .qr-manual-form {
+          width: 100%;
+          max-width: 360px;
+          text-align: center;
+        }
+
+        .qr-manual-icon-bubble {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255, 43, 133, 0.14);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 12px auto;
+        }
+
+        .qr-manual-form h4 {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: #FFFFFF;
+          margin: 0 0 6px 0;
+        }
+
+        .qr-manual-form p {
+          font-size: 0.78rem;
+          color: #94A3B8;
+          margin: 0 0 18px 0;
+        }
+
+        .qr-manual-input-wrap {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1.5px solid rgba(255, 255, 255, 0.16);
+          border-radius: 12px;
+          padding: 4px;
+          transition: border-color 0.2s;
+        }
+
+        .qr-manual-input-wrap:focus-within {
+          border-color: #FF2B85;
+          box-shadow: 0 0 12px rgba(255, 43, 133, 0.25);
+        }
+
+        .qr-manual-input {
+          flex: 1;
+          background: none;
+          border: none;
+          outline: none;
+          color: #FFFFFF;
+          font-family: monospace;
+          font-size: 0.95rem;
+          font-weight: 700;
+          padding: 8px 12px;
+          letter-spacing: 0.05em;
+        }
+
+        .qr-manual-submit-btn {
+          background: #FF2B85;
+          color: #FFFFFF;
+          border: none;
+          width: 38px;
+          height: 38px;
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+
+        .qr-manual-submit-btn:hover {
+          transform: scale(1.05);
+        }
+
+        .qr-manual-err-text {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          color: #F87171;
+          font-size: 0.75rem;
+          font-weight: 700;
+          margin-top: 8px;
+        }
+
+        .qr-manual-hints {
+          margin-top: 14px;
+          font-size: 0.72rem;
+          color: #64748B;
+        }
+
+        /* Resolving & Loading */
+        .qr-viewport-loading, .qr-viewport-resolving {
           position: absolute;
           inset: 0;
           display: flex;
@@ -743,11 +1473,27 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           color: #94A3B8;
           font-size: 0.88rem;
           font-weight: 600;
+          padding: 24px;
+          text-align: center;
+          background: rgba(2, 6, 23, 0.95);
+          z-index: 25;
+        }
+
+        .qr-viewport-resolving h4 {
+          font-size: 1.1rem;
+          color: #FFFFFF;
+          margin: 0;
+        }
+
+        .qr-viewport-resolving p {
+          font-size: 0.8rem;
+          color: #94A3B8;
+          margin: 0;
         }
 
         .qr-spin-ring {
-          width: 36px;
-          height: 36px;
+          width: 38px;
+          height: 38px;
           border: 3px solid rgba(255, 43, 133, 0.2);
           border-top-color: #FF2B85;
           border-radius: 50%;
@@ -758,15 +1504,15 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           to { transform: rotate(360deg); }
         }
 
-        /* Detected banner */
+        /* Detected Banners */
         .qr-viewport-detected {
           position: absolute;
           inset: 0;
-          background: rgba(2, 6, 23, 0.92);
+          background: rgba(2, 6, 23, 0.95);
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 20;
+          z-index: 30;
           animation: qrDetectedPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -778,32 +1524,195 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         .qr-detected-bubble {
           text-align: center;
           padding: 24px;
+          max-width: 380px;
+        }
+
+        .qr-detected-icon-circle {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          margin: 0 auto 12px auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .qr-detected-icon-circle.green {
+          background: rgba(16, 185, 129, 0.15);
+          border: 2px solid #10B981;
+        }
+
+        .qr-detected-icon-circle.purple {
+          background: rgba(168, 85, 247, 0.15);
+          border: 2px solid #A855F7;
         }
 
         .qr-detected-bubble h4 {
-          font-size: 1.25rem;
+          font-size: 1.3rem;
           font-weight: 800;
-          color: #10B981;
-          margin: 12px 0 6px 0;
+          color: #FFFFFF;
+          margin: 0 0 6px 0;
         }
 
         .qr-detected-tag-code {
-          background: rgba(16, 185, 129, 0.15);
-          border: 1px solid #10B981;
-          color: #34D399;
-          font-size: 1.15rem;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: #38BDF8;
+          font-size: 1.05rem;
           font-weight: 900;
-          padding: 8px 18px;
+          padding: 6px 16px;
           border-radius: 8px;
           display: inline-block;
           margin: 6px 0 10px 0;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.05em;
+          word-break: break-all;
         }
 
-        .qr-detected-bubble p {
+        .qr-detected-vehicle-info {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.06);
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.78rem;
+          color: #E2E8F0;
+          margin-bottom: 8px;
+        }
+
+        .qr-routing-hint {
+          font-size: 0.82rem;
+          color: #94A3B8;
+          margin: 0 0 16px 0;
+        }
+
+        .qr-auto-forward-bar {
+          width: 100%;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .qr-auto-forward-progress {
+          height: 100%;
+          background: linear-gradient(90deg, #FF2B85, #10B981);
+          animation: autoForward 0.6s ease-in-out forwards;
+        }
+
+        @keyframes autoForward {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+
+        /* Choice Viewport */
+        .qr-viewport-choice {
+          position: absolute;
+          inset: 0;
+          background: #020617;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 30;
+          padding: 20px;
+        }
+
+        .qr-choice-bubble {
+          text-align: center;
+          width: 100%;
+          max-width: 380px;
+        }
+
+        .qr-choice-bubble h4 {
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: #FFFFFF;
+          margin: 8px 0 4px 0;
+        }
+
+        .qr-choice-bubble p {
           font-size: 0.8rem;
           color: #94A3B8;
-          margin: 0;
+          margin: 0 0 18px 0;
+        }
+
+        .qr-choice-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+
+        .qr-btn-choice-reach {
+          background: rgba(255, 43, 133, 0.12);
+          border: 1.5px solid #FF2B85;
+          color: #FFFFFF;
+          padding: 12px 14px;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          text-align: left;
+          transition: all 0.2s;
+        }
+
+        .qr-btn-choice-reach:hover {
+          background: rgba(255, 43, 133, 0.25);
+          transform: translateY(-1px);
+        }
+
+        .qr-btn-choice-activate {
+          background: rgba(168, 85, 247, 0.12);
+          border: 1.5px solid #A855F7;
+          color: #FFFFFF;
+          padding: 12px 14px;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          text-align: left;
+          transition: all 0.2s;
+        }
+
+        .qr-btn-choice-activate:hover {
+          background: rgba(168, 85, 247, 0.25);
+          transform: translateY(-1px);
+        }
+
+        .qr-choice-btn-text {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .choice-btn-main {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .choice-btn-sub {
+          font-size: 0.72rem;
+          color: #94A3B8;
+        }
+
+        .qr-btn-rescan {
+          background: none;
+          border: none;
+          color: #64748B;
+          font-size: 0.78rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 4px;
+          transition: color 0.2s;
+        }
+
+        .qr-btn-rescan:hover {
+          color: #FFFFFF;
         }
 
         /* Error state */
@@ -821,8 +1730,8 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         }
 
         .qr-error-icon-box {
-          width: 52px;
-          height: 52px;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           background: rgba(245, 158, 11, 0.15);
           display: flex;
@@ -841,9 +1750,9 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
         .qr-viewport-error p {
           font-size: 0.8rem;
           color: #94A3B8;
-          max-width: 340px;
-          margin: 0 0 18px 0;
-          line-height: 1.45;
+          max-width: 320px;
+          margin: 0 0 16px 0;
+          line-height: 1.4;
         }
 
         .qr-error-actions {
@@ -853,13 +1762,13 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           justify-content: center;
         }
 
-        .qr-btn-retry, .qr-btn-upload-direct {
+        .qr-btn-retry, .qr-btn-switch-tab {
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.15);
           color: #F8FAFC;
-          padding: 8px 16px;
+          padding: 8px 14px;
           border-radius: 8px;
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           font-weight: 700;
           display: flex;
           align-items: center;
@@ -868,9 +1777,9 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           transition: all 0.2s;
         }
 
-        .qr-btn-upload-direct {
-          background: var(--magenta, #FF2B85);
-          border-color: var(--magenta, #FF2B85);
+        .qr-btn-switch-tab {
+          background: #FF2B85;
+          border-color: #FF2B85;
           color: #FFFFFF;
         }
 
@@ -884,7 +1793,7 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           align-items: center;
           justify-content: center;
           gap: 10px;
-          padding: 12px 18px;
+          padding: 10px 18px;
           background: rgba(255, 255, 255, 0.02);
           border-top: 1px solid rgba(255, 255, 255, 0.08);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -894,9 +1803,9 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.12);
           color: #E2E8F0;
-          padding: 8px 14px;
+          padding: 7px 12px;
           border-radius: 8px;
-          font-size: 0.78rem;
+          font-size: 0.76rem;
           font-weight: 700;
           display: flex;
           align-items: center;
@@ -918,10 +1827,10 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
 
         /* Footer */
         .qr-modal-footer {
-          padding: 14px 22px;
+          padding: 12px 20px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 6px;
           align-items: center;
         }
 
@@ -931,22 +1840,6 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
           gap: 6px;
           font-size: 0.72rem;
           color: #64748B;
-        }
-
-        .qr-btn-enter-manually {
-          background: none;
-          border: none;
-          color: #94A3B8;
-          font-size: 0.8rem;
-          font-weight: 700;
-          cursor: pointer;
-          text-decoration: underline;
-          padding: 4px;
-          transition: color 0.2s;
-        }
-
-        .qr-btn-enter-manually:hover {
-          color: #FFFFFF;
         }
       `}</style>
     </div>

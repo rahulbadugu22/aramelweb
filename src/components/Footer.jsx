@@ -1,7 +1,9 @@
+import { usePricing } from '../context/PricingContext';
 import React from 'react';
 import { Mail } from 'lucide-react';
 
 export default function Footer({ onOpenOrderTag, onNavigate }) {
+  const { customerPrice = 450 } = usePricing();
   return (
     <footer className="footer-section">
       <div className="container">
@@ -28,7 +30,7 @@ export default function Footer({ onOpenOrderTag, onNavigate }) {
             <h4 className="footer-heading">CarFrnd Tag</h4>
             <ul className="footer-links">
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>How CarFrnd Tag Works</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹450)</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenOrderTag(); }}>Order CarFrnd Tag (₹{customerPrice})</a></li>
               <li><a href="/activate-tag" onClick={(e) => { e.preventDefault(); if (onNavigate) onNavigate('activate-tag'); }}>Activate CarFrnd Tag</a></li>
               <li><a href="#app-showcase" onClick={() => { if (onNavigate) onNavigate('home'); }}>Privacy & Phone Protection</a></li>
 

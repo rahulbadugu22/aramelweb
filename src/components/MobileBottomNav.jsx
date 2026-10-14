@@ -1,8 +1,10 @@
+import { usePricing } from '../context/PricingContext';
 import React, { useState, useEffect } from 'react';
 import { Home, ShoppingBag, Wrench, Sparkles, User } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavigate, currentView }) {
+  const { customerPrice = 450 } = usePricing();
   const [scrollTab, setScrollTab] = useState('home');
   const { isLoggedIn, openSignInModal } = useCustomerAuth();
 
@@ -100,7 +102,7 @@ export default function MobileBottomNav({ onOpenOrderTag, onOpenAccount, onNavig
             <ShoppingBag size={22} color="#FFFFFF" />
             <span className="fab-pulse-ring"></span>
           </button>
-          <span className="center-fab-label">₹450</span>
+          <span className="center-fab-label">₹{customerPrice}</span>
           <span className="fab-badge">BUY</span>
         </div>
 

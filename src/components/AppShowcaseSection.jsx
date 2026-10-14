@@ -1,7 +1,9 @@
+import { usePricing } from '../context/PricingContext';
 import React, { useState, useEffect } from 'react';
 import { Shield, ShieldCheck, QrCode, PhoneCall, AlertTriangle, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function AppShowcaseSection({ onOpenOrderTag }) {
+  const { customerPrice } = usePricing();
   const [scanStep, setScanStep] = useState(1);
 
   // Auto-cycle through the CarFrnd Tag scanning flow
@@ -73,7 +75,7 @@ export default function AppShowcaseSection({ onOpenOrderTag }) {
             <div className="showcase-actions-row">
               <button className="btn-primary showcase-cta-main" onClick={onOpenOrderTag}>
                 <Sparkles size={16} />
-                <span>Get Your CarFrnd Tag — ₹450</span>
+                <span>Get Your CarFrnd Tag — ₹{customerPrice}</span>
               </button>
             </div>
           </div>

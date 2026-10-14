@@ -1,5 +1,7 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState } from 'react';
 import { Sparkles, ShieldCheck, Truck, Lock, Receipt } from 'lucide-react';
+import { usePricing } from '../context/PricingContext';
 import confetti from 'canvas-confetti';
 
 export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
@@ -11,7 +13,8 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [latestOrder, setLatestOrder] = useState(null);
 
-  const unitPrice = 450;
+  const { customerPrice, mrp, gstRate, gstEnabled } = usePricing();
+  const unitPrice = customerPrice || 450;
   const totalPrice = unitPrice * quantity;
 
   const handleOrderSubmit = (e) => {
@@ -31,6 +34,15 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
       totalPrice,
       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     };
+    try {
+      fetch(`${API_BASE_URL}/api/customer/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, vehicleNo, quantity, totalPrice, address, name })
+      }).catch(() => {});
+      localStorage.setItem('carfrnd_last_order', JSON.stringify(orderData));
+    } catch {}
+
     setLatestOrder(orderData);
     setOrderConfirmed(true);
     confetti({
@@ -49,7 +61,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
             <div className="order-preview-col">
               <div className="glass-pill">
                 <Sparkles size={13} />
-                <span>SPECIAL LAUNCH OFFER — ₹450 (INCL. GST)</span>
+                <span>SPECIAL LAUNCH OFFER — ₹{unitPrice} ({gstEnabled ? `INCL. ${gstRate}% GST` : 'INCL. TAXES'})</span>
               </div>
 
               <h2 className="order-title">
@@ -186,7 +198,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       </div>
 
                       <div className="price-stack">
-                        <span className="strike-price">₹{799 * quantity}</span>
+                        <span className="strike-price">₹{(mrp || 799) * quantity}</span>
                         <span className="total-price">₹{totalPrice}</span>
                       </div>
                     </div>

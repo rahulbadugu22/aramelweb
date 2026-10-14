@@ -1,8 +1,10 @@
+import { usePricing } from '../context/PricingContext';
 import React from 'react';
 import { ShieldCheck, QrCode, Sparkles, ArrowRight, PhoneOff, CheckCircle2, Car } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function Hero({ onOpenOrderTag, onOpenDoorstepWash }) {
+  const { customerPrice = 450 } = usePricing();
   return (
     <section className="hero-section">
       <div className="hero-bg-image"></div>
@@ -53,7 +55,7 @@ export default function Hero({ onOpenOrderTag, onOpenDoorstepWash }) {
           <div className="hero-ctas">
             <button className="btn-primary hero-btn-main" onClick={onOpenOrderTag}>
               <Sparkles size={16} />
-              Get Your CarFrnd Tag — ₹450
+              Get Your CarFrnd Tag — ₹{customerPrice}
             </button>
             <a href="#app-showcase" className="btn-secondary hero-btn-sec">
               How It Works

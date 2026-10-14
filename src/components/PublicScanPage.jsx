@@ -72,6 +72,13 @@ export default function PublicScanPage({ token, onNavigate }) {
   const [callError, setCallError] = useState('');
 
   useEffect(() => {
+    setIsVerified(false);
+    setLast4Input('');
+    setVerifyError('');
+    setVerifiedVehicle(null);
+    setAlertSubmitted(false);
+    setCallState('idle');
+
     if (!effectiveToken) {
       setErrorMsg('No CarFrnd QR tag token provided in URL.');
       setLoading(false);
@@ -88,11 +95,8 @@ export default function PublicScanPage({ token, onNavigate }) {
         if (data) {
           setTagData(data);
           
-          // If tag is NOT activated (e.g. ASSIGNED or UNASSIGNED), auto-navigate to activation flow
+          // If tag is not activated, keep tagData so user can see status card or click to activate
           if (!data.valid && (data.status === 'ASSIGNED' || data.status === 'UNASSIGNED')) {
-            setTimeout(() => {
-              onNavigate('activate-tag', { tag: data.serialNumber || effectiveToken });
-            }, 800);
             return;
           }
 
@@ -117,13 +121,17 @@ export default function PublicScanPage({ token, onNavigate }) {
   }, [effectiveToken]);
 
   // Handle Last 4 Digits Verification
-  const handleVerifyPlate = async (e) => {
-    e.preventDefault();
-    const clean = last4Input.trim().toUpperCase();
+  const handleVerifyPlate = async (e, digitsOverride) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    const clean = (digitsOverride !== undefined ? digitsOverride : last4Input).toString().trim().toUpperCase();
     if (!clean || clean.length < 3) {
       setVerifyError('Please enter the last 4 digits from the vehicle number plate.');
       return;
     }
+
+    if (verifying) return;
 
     setVerifying(true);
     setVerifyError('');
@@ -382,7 +390,7 @@ export default function PublicScanPage({ token, onNavigate }) {
             </div>
 
             {/* Verification Form */}
-            <form onSubmit={handleVerifyPlate} className="verify-form">
+            <form onSubmit={handleVerifyPlate} className="verify-form" noValidate>
               <div className="verify-input-group">
                 <label className="verify-label">Enter Last 4 Digits of Plate</label>
                 <div className="verify-input-wrap">
@@ -394,9 +402,17 @@ export default function PublicScanPage({ token, onNavigate }) {
                     placeholder="e.g. 9876"
                     className="verify-input"
                     value={last4Input}
+                    autoComplete="off"
                     onChange={(e) => {
-                      setLast4Input(e.target.value.toUpperCase());
+                      const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                      setLast4Input(val);
                       setVerifyError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleVerifyPlate(e);
+                      }
                     }}
                     autoFocus
                     required

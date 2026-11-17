@@ -1,6 +1,6 @@
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, PAYMENT_API, RAZORPAY_KEY_ID } from '../config/api';
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Truck, Lock, Receipt } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, Lock, Receipt, CreditCard, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { usePricing } from '../context/PricingContext';
 import confetti from 'canvas-confetti';
 
@@ -12,44 +12,149 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
   const [address, setAddress] = useState('');
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [latestOrder, setLatestOrder] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { customerPrice, mrp, gstRate, gstEnabled } = usePricing();
   const unitPrice = customerPrice || 450;
   const totalPrice = unitPrice * quantity;
 
-  const handleOrderSubmit = (e) => {
+  // Helper to ensure Razorpay SDK script is loaded
+  const loadRazorpaySDK = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleOrderSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (!name.trim() || !phone.trim() || !vehicleNo.trim() || !address.trim()) {
-      alert('Please fill out all mandatory details including Vehicle Number!');
+      setErrorMessage('Please fill out all mandatory details including Vehicle Number!');
       return;
     }
-    const newOrderId = `CF-${Math.floor(100000 + Math.random() * 900000)}`;
-    const orderData = {
-      orderId: newOrderId,
-      name,
-      phone,
-      vehicleNo: vehicleNo.toUpperCase(),
-      address,
-      quantity,
-      totalPrice,
-      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    };
+
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setErrorMessage('Please enter a valid 10-digit mobile number for dispatch updates.');
+      return;
+    }
+
+    setIsProcessing(true);
+
     try {
-      fetch(`${API_BASE_URL}/api/customer/orders`, {
+      const sdkLoaded = await loadRazorpaySDK();
+      if (!sdkLoaded || !window.Razorpay) {
+        throw new Error('Razorpay SDK failed to load. Please check your internet connection.');
+      }
+
+      // 1. Create Razorpay Order on Backend
+      const createOrderRes = await fetch(PAYMENT_API.createOrder, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, vehicleNo, quantity, totalPrice, address, name })
-      }).catch(() => {});
-      localStorage.setItem('carfrnd_last_order', JSON.stringify(orderData));
-    } catch {}
+        body: JSON.stringify({
+          amount: totalPrice,
+          phone: cleanPhone.slice(-10),
+          vehicleNo: vehicleNo.toUpperCase().trim(),
+          quantity,
+          name: name.trim(),
+          address: address.trim()
+        })
+      });
 
-    setLatestOrder(orderData);
-    setOrderConfirmed(true);
-    confetti({
-      particleCount: 120,
-      spread: 80,
-      origin: { y: 0.5 }
-    });
+      const orderData = await createOrderRes.json();
+      if (!createOrderRes.ok || !orderData.orderId) {
+        throw new Error(orderData.error || 'Failed to initialize payment gateway.');
+      }
+
+      // 2. Open Razorpay Checkout Modal
+      const options = {
+        key: orderData.keyId || RAZORPAY_KEY_ID,
+        amount: orderData.amount, // in paise
+        currency: orderData.currency || 'INR',
+        name: 'CarFrnd',
+        description: `${quantity}x CarFrnd Smart QR Decal for ${vehicleNo.toUpperCase().trim()}`,
+        order_id: orderData.orderId,
+        prefill: {
+          name: name.trim(),
+          contact: cleanPhone.slice(-10)
+        },
+        notes: {
+          vehicleNo: vehicleNo.toUpperCase().trim(),
+          quantity: quantity.toString(),
+          address: address.trim()
+        },
+        theme: {
+          color: '#FF2B85'
+        },
+        handler: async function (response) {
+          try {
+            // 3. Cryptographically verify signature and save order in DB
+            const verifyRes = await fetch(PAYMENT_API.verify, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name: name.trim(),
+                phone: cleanPhone.slice(-10),
+                vehicleNo: vehicleNo.toUpperCase().trim(),
+                quantity,
+                totalPrice,
+                address: address.trim()
+              })
+            });
+
+            const verifyResult = await verifyRes.json();
+            if (verifyRes.ok && verifyResult.success && verifyResult.order) {
+              setLatestOrder(verifyResult.order);
+              try {
+                localStorage.setItem('carfrnd_last_order', JSON.stringify(verifyResult.order));
+              } catch {}
+              setOrderConfirmed(true);
+              confetti({
+                particleCount: 130,
+                spread: 85,
+                origin: { y: 0.5 }
+              });
+            } else {
+              setErrorMessage(verifyResult.error || 'Payment signature verification failed.');
+            }
+          } catch (vErr) {
+            console.error('Signature verification call failed:', vErr);
+            setErrorMessage('Payment was charged, but confirmation timed out. Our team will verify and dispatch your order.');
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          }
+        }
+      };
+
+      const rzpInstance = new window.Razorpay(options);
+      rzpInstance.on('payment.failed', function (failResp) {
+        setIsProcessing(false);
+        setErrorMessage(`Payment Failed: ${failResp.error?.description || 'Transaction was declined.'}`);
+      });
+      rzpInstance.open();
+    } catch (err) {
+      console.error('Order creation error:', err);
+      setErrorMessage(err.message || 'Unable to open payment modal. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -118,8 +223,29 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                   <p className="success-txt">
                     Thank you <strong>{latestOrder?.name || name}</strong>! Your order for <strong>{latestOrder?.quantity || quantity}x CarFrnd Tag</strong> for vehicle <strong>{(latestOrder?.vehicleNo || vehicleNo).toUpperCase()}</strong> has been placed successfully.
                   </p>
+                  
+                  {/* Razorpay Verified Badge */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    margin: '12px 0',
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    color: '#065F46',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.82rem',
+                    fontWeight: 600
+                  }}>
+                    <CheckCircle2 size={16} color="#059669" />
+                    <span>Payment Verified via Razorpay: <code>{latestOrder?.paymentId || 'PAID'}</code></span>
+                  </div>
+
                   <div className="tracking-box">
                     <span>Order ID: <code>{latestOrder?.orderId || 'CF-NEW'}</code></span>
+                    <span>Tracking No: <code>{latestOrder?.trackingNumber || 'TRK-PENDING'}</code></span>
                     <span>Estimated Delivery: <strong>3–5 Business Days</strong></span>
                   </div>
 
@@ -139,6 +265,24 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                 <form onSubmit={handleOrderSubmit} className="order-checkout-form">
                   <h3 className="form-head-title">Shipping & Contact Details</h3>
 
+                  {errorMessage && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 12px',
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      color: '#991B1B',
+                      borderRadius: '8px',
+                      fontSize: '0.82rem',
+                      marginBottom: '12px'
+                    }}>
+                      <AlertCircle size={16} color="#DC2626" />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
                   <div className="form-group">
                     <label>Full Name</label>
                     <input
@@ -146,6 +290,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       placeholder="Enter your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      disabled={isProcessing}
                       required
                     />
                   </div>
@@ -157,6 +302,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       placeholder="10-digit mobile number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      disabled={isProcessing}
                       required
                     />
                   </div>
@@ -170,6 +316,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       placeholder="e.g. MH 01 AB 1234"
                       value={vehicleNo}
                       onChange={(e) => setVehicleNo(e.target.value.toUpperCase())}
+                      disabled={isProcessing}
                       required
                     />
                   </div>
@@ -181,6 +328,7 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       placeholder="Flat/House No., Street, City, State, Pincode"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      disabled={isProcessing}
                       required
                     />
                   </div>
@@ -191,9 +339,9 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                       <div className="qty-control-wrapper">
                         <span className="qty-label">Qty:</span>
                         <div className="qty-picker">
-                          <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">−</button>
+                          <button type="button" disabled={isProcessing} onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">−</button>
                           <span className="qty-val">{quantity}</span>
-                          <button type="button" onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button>
+                          <button type="button" disabled={isProcessing} onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button>
                         </div>
                       </div>
 
@@ -209,9 +357,32 @@ export default function OrderTagSection({ onOpenBill, onOpenTrackOrder }) {
                     </div>
                   </div>
 
-                  <button type="submit" className="btn-primary full-w order-submit-btn">
-                    <Lock size={16} /> Pay ₹{totalPrice} & Place Order
+                  <button type="submit" disabled={isProcessing} className="btn-primary full-w order-submit-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    {isProcessing ? (
+                      <>
+                        <Loader2 size={16} className="spin" style={{ animation: 'spin 1s linear infinite' }} />
+                        <span>Opening Razorpay Secure Gateway...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={16} /> Pay ₹{totalPrice} & Place Order
+                      </>
+                    )}
                   </button>
+
+                  <div style={{
+                    textAlign: 'center',
+                    marginTop: '8px',
+                    fontSize: '0.76rem',
+                    color: '#64748B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}>
+                    <ShieldCheck size={14} color="#059669" />
+                    <span>Secured with 256-bit SSL via <strong>Razorpay</strong> (UPI, Cards, NetBanking)</span>
+                  </div>
 
                   <div className="trust-footer-row">
                     <div className="t-item">

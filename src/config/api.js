@@ -24,3 +24,11 @@ export const PUBLIC_API = {
   pricing: `${API_BASE_URL}/api/settings/pricing`
 };
 
+export const PAYMENT_API = {
+  getKey: `${API_BASE_URL}/api/payments/key`,
+  createOrder: `${API_BASE_URL}/api/payments/create-order`,
+  verify: `${API_BASE_URL}/api/payments/verify`
+};
+
+export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tcl0a66jBDkDEH';
+
